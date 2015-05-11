@@ -20,7 +20,7 @@ type GameState = {
 
 type StateChange = 
     | StartGame
-    | ChangeBackgroundColour of GlColor
+    | ChangeBackgroundColor of GlColor
     | EndGame
     | NoChange
 
@@ -29,7 +29,7 @@ let initialState = {
     BackgroundColor = {Red= 0.0f; Green =  0.0f; Blue= 0.0f; Alpha = 0.0f}
 }
 
-let randomGlColour = 
+let randomGlColor = 
     let random = new Random()
     fun () -> {Red= float32 <| random.NextDouble(); Green =  float32 <| random.NextDouble(); Blue= float32 <| random.NextDouble(); Alpha = 0.0f}
 
@@ -55,6 +55,7 @@ let main _ =
 
     let renderFrame (state: GameState)  =
         GL.ClearColor(state.BackgroundColor.Red, state.BackgroundColor.Green, state.BackgroundColor.Blue, 0.0f)
+
         GL.Clear(ClearBufferMask.ColorBufferBit ||| ClearBufferMask.DepthBufferBit)
         let mutable modelview = Matrix4.LookAt(Vector3.Zero, Vector3.UnitZ, Vector3.UnitY)
         GL.MatrixMode(MatrixMode.Modelview)
@@ -72,13 +73,13 @@ let main _ =
         let scale = if args.Shift then 10 else 1
         match args.Key with
         | Key.Escape ->  StateChange.EndGame
-        | Key.KeypadMinus -> StateChange.ChangeBackgroundColour <| randomGlColour()
+        | Key.KeypadMinus -> StateChange.ChangeBackgroundColor <| randomGlColor()
         | _ -> StateChange.NoChange
 
     let updateGameState (state: GameState)  change = 
         match change with 
         | StartGame -> state
-        | ChangeBackgroundColour color -> {state with BackgroundColor = color}
+        | ChangeBackgroundColor color -> {state with BackgroundColor = color}
         | EndGame -> {state with Running=Stop}
         | NoChange -> state
 
