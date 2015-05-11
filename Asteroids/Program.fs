@@ -1,7 +1,4 @@
-﻿// Learn more about F# at http://fsharp.net
-// See the 'F# Tutorial' project for more help.
-
-open System
+﻿open System
 open System.Drawing
 
 open OpenTK
@@ -26,8 +23,15 @@ type StateChange =
     | EndGame
     | NoChange
 
+let initialState = 
+    { Running = Continue; BackgroundColor = {Red= 0.0f; Green =  0.0f; Blue= 0.0f; Alpha = 0.0f} }
+
+let randomGlColour = 
+    let random = new Random()
+    fun () -> {Red= float32 <| random.NextDouble(); Green =  float32 <| random.NextDouble(); Blue= float32 <| random.NextDouble(); Alpha = 0.0f}
+
 [<EntryPoint>]
-let main argv = 
+let main _ = 
     use game = new GameWindow(800, 600)
     game.Title <- "Asteroids"
 
@@ -54,15 +58,12 @@ let main argv =
         GL.LoadMatrix(&modelview)
 
         PrimitiveType.Triangles |> GL.Begin
-        GL.Color3(1.f, 1.f, 0.f); GL.Vertex3(-1.f, -1.f, 4.f)
-        GL.Color3(1.f, 0.f, 0.f); GL.Vertex3(1.f, -1.f, 4.f)
-        GL.Color3(0.2f, 0.9f, 1.f); GL.Vertex3(0.f, 1.f, 4.f)
+        GL.Color3(1.f, 0.f, 0.f); GL.Vertex3(-0.1f, 0.1f, 4.f)
+        GL.Color3(1.f, 0.f, 0.f); GL.Vertex3(0.1f, 0.1f, 4.f)
+        GL.Color3(0.2f, 0.9f, 1.f); GL.Vertex3(0.f, 0.3f, 4.f)
         GL.End()
 
         game.SwapBuffers()
-
-    let random = new Random()
-    let randomGlColour() = {Red= float32 <| random.NextDouble(); Green =  float32 <| random.NextDouble(); Blue= float32 <| random.NextDouble(); Alpha = 0.0f}
 
     let keyDown (args: KeyboardKeyEventArgs) =
         let scale = if args.Shift then 10 else 1
@@ -89,9 +90,6 @@ let main argv =
             let trigger() = internalEvent.Trigger(StartGame)
             (observable,trigger)
 
-        let initialState = 
-            { Running = Continue; BackgroundColor =randomGlColour() }
-
         let updateGameStateStream = 
             game.KeyDown
             |> Observable.map keyDown
@@ -99,16 +97,15 @@ let main argv =
             |> Observable.scan updateGameState initialState  
 
         let currentGameState = ref initialState
-
         let updateCurrentStateSub = updateGameStateStream |> Observable.subscribe (fun state -> currentGameState := state)
 
         let renderFrameSub = 
             game.RenderFrame
-            |> Observable.subscribe(fun event -> renderFrame !currentGameState)
+            |> Observable.subscribe(fun _ -> renderFrame !currentGameState)
 
         let updateFrameSub = 
             game.UpdateFrame
-            |> Observable.subscribe(fun event -> updateFrame !currentGameState)
+            |> Observable.subscribe(fun _ -> updateFrame !currentGameState)
         triggerGameStart
 
     startGameSubscription()
