@@ -6,7 +6,8 @@ open OpenTK.Graphics
 open OpenTK.Graphics.OpenGL
 open OpenTK.Input
 
-type GlColor = {Red:float32 ; Green:float32; Blue:float32; Alpha:float32}
+open GlHelpers
+open Domain
 
 type GameRunning =
     | Continue
@@ -23,8 +24,10 @@ type StateChange =
     | EndGame
     | NoChange
 
-let initialState = 
-    { Running = Continue; BackgroundColor = {Red= 0.0f; Green =  0.0f; Blue= 0.0f; Alpha = 0.0f} }
+let initialState = { 
+    Running = Continue
+    BackgroundColor = {Red= 0.0f; Green =  0.0f; Blue= 0.0f; Alpha = 0.0f}
+}
 
 let randomGlColour = 
     let random = new Random()
