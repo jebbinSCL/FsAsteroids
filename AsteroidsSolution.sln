@@ -5,6 +5,13 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Asteroids", "Asteroids\Asteroids.fsproj", "{2729EF04-9EF7-4911-B2CF-EA98CF6819F1}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Asteroids.Tests", "Asteroids.Tests\Asteroids.Tests.fsproj", "{7798C051-91E3-447C-9C3E-8ED98F82998E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{75CA2C3A-DA21-4DE2-89B4-5FD9657B9E77}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +22,10 @@ Global
 		{2729EF04-9EF7-4911-B2CF-EA98CF6819F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2729EF04-9EF7-4911-B2CF-EA98CF6819F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2729EF04-9EF7-4911-B2CF-EA98CF6819F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7798C051-91E3-447C-9C3E-8ED98F82998E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7798C051-91E3-447C-9C3E-8ED98F82998E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7798C051-91E3-447C-9C3E-8ED98F82998E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7798C051-91E3-447C-9C3E-8ED98F82998E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

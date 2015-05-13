@@ -81,10 +81,20 @@ type Game() =
     override o.OnUpdateFrame(e) =
         base.OnUpdateFrame(e)
         if base.Keyboard.[Key.Escape] then base.Close()
-        if base.Keyboard.[Key.Left] then  generatorX <- generatorX + 0.01<m>
-        if base.Keyboard.[Key.Right] then generatorX <- generatorX - 0.01<m>
-        if base.Keyboard.[Key.Down] then  generatorY <- generatorY - 0.01<m>
-        if base.Keyboard.[Key.Up] then    generatorY <- generatorY + 0.01<m>
+        if base.Keyboard.[Key.End] then
+            List.length particles |> printfn "Number of particles: %d"
+        if base.Keyboard.[Key.Left] then  
+            generatorX <- generatorX + 0.01<m>
+            printfn "%A %A" generatorX generatorY
+        if base.Keyboard.[Key.Right] then 
+            generatorX <- generatorX - 0.01<m>
+            printfn "%A %A" generatorX generatorY
+        if base.Keyboard.[Key.Down] then  
+            generatorY <- generatorY - 0.01<m>
+            printfn "%A %A" generatorX generatorY
+        if base.Keyboard.[Key.Up] then    
+            generatorY <- generatorY + 0.01<m>
+            printfn "%A %A" generatorX generatorY
 
 
     override o.OnRenderFrame(e) =
@@ -99,9 +109,10 @@ type Game() =
         for p in particles do
             p.Move t
             display p
-            // remove "dead" particles
-
+            
+        // remove "dead" particles
         particles <- List.filter (fun p -> p.Age < lifeSpan) particles
+        
         base.SwapBuffers()
 
 

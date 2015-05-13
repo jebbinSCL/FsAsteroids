@@ -1,50 +1,27 @@
 ﻿open System
-open System.Drawing
 
 open OpenTK
 open OpenTK.Graphics
 open OpenTK.Graphics.OpenGL
 open OpenTK.Input
 
-open GlHelpers
+open Geometry
 open Domain
-
-type GameRunning =
-    | Continue
-    | Stop
-
-type GameState = {
-    Running : GameRunning
-    BackgroundColor : GlColor
-}
-
-type StateChange = 
-    | StartGame
-    | ChangeBackgroundColor of GlColor
-    | EndGame
-    | NoChange
-
-let initialState = { 
-    Running = Continue
-    BackgroundColor = {Red= 0.0f; Green =  0.0f; Blue= 0.0f; Alpha = 0.0f}
-}
-
-let randomGlColor = 
-    let random = new Random()
-    fun () -> {Red= float32 <| random.NextDouble(); Green =  float32 <| random.NextDouble(); Blue= float32 <| random.NextDouble(); Alpha = 0.0f}
 
 [<EntryPoint>]
 let main _ = 
-    use game = new GameWindow(800, 600)
-    game.Title <- "Asteroids"
+    use game = new GameWindow(800, 600, GraphicsMode.Default, "Asteroids")
 
-    let load _ = 
+    let load _ =
+        // Some game and OpenGL Setup
         game.VSync <- VSyncMode.On
-        GL.Enable(EnableCap.DepthTest)
+        GL.Enable(EnableCap.Blend)
+        GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One)
 
     let resize _ = 
+        //Setup of projection matrix for game
         GL.Viewport(game.ClientRectangle.X, game.ClientRectangle.Y, game.ClientRectangle.Width, game.ClientRectangle.Height)
-        let mutable projection = Matrix4.CreatePerspectiveFieldOfView(float32 (Math.PI / 4.), float32 game.Width / float32 game.Height, 1.f, 64.f)
+        let mutable projection = Matrix4.CreatePerspectiveFieldOfView(float32 (Math.PI / 4.), float32 game.Width / float32 game.Height, 0.001f, 5.0f)
         GL.MatrixMode(MatrixMode.Projection)
         GL.LoadMatrix(&projection)
 
@@ -54,65 +31,79 @@ let main _ =
         | Stop -> game.Exit()
 
     let renderFrame (state: GameState)  =
-        GL.ClearColor(state.BackgroundColor.Red, state.BackgroundColor.Green, state.BackgroundColor.Blue, 0.0f)
 
+        //OpenGL Stuff to set view
         GL.Clear(ClearBufferMask.ColorBufferBit ||| ClearBufferMask.DepthBufferBit)
         let mutable modelview = Matrix4.LookAt(Vector3.Zero, Vector3.UnitZ, Vector3.UnitY)
         GL.MatrixMode(MatrixMode.Modelview)
         GL.LoadMatrix(&modelview)
 
+        // Draw triangle based on ship position
         PrimitiveType.Triangles |> GL.Begin
-        GL.Color3(1.f, 0.f, 0.f); GL.Vertex3(-0.1f, 0.1f, 4.f)
-        GL.Color3(1.f, 0.f, 0.f); GL.Vertex3(0.1f, 0.1f, 4.f)
-        GL.Color3(0.2f, 0.9f, 1.f); GL.Vertex3(0.f, 0.3f, 4.f)
+        let shipPos = state.Ship.Position
+        (*Note the 4. (or 4.0) for the z coordinate of the vertices is 4, instead of zero because of the specific projection. 
+            For now, simply keep it and abstract out the coordinates so that you can just use X and Y, while keeping Z contstant. 
+
+            One other thing to note about the coordinates: The screen coordinate system is not between nice numbers. 
+            I attempted to clean that up, but I've had no luck so far. 
+         *) 
+        GL.Color3(1., 0., 0.); GL.Vertex3(shipPos.X + -0.1, shipPos.Y + -0.1, 4.) 
+        GL.Color3(1., 0., 0.); GL.Vertex3(shipPos.X + 0.1, shipPos.Y + -0.1, 4.)
+        GL.Color3(0.2, 0.9, 1.); GL.Vertex3(shipPos.X + 0., shipPos.Y + 0.1, 4.)
         GL.End()
 
+        // Game is double buffered
         game.SwapBuffers()
 
+    //Handle keydownEvents and transform them into state changes 
+    //Hint (To get the best behaviour, you may need to deal with key up, etc events)
     let keyDown (args: KeyboardKeyEventArgs) =
-        let scale = if args.Shift then 10 else 1
         match args.Key with
-        | Key.Escape ->  StateChange.EndGame
-        | Key.KeypadMinus -> StateChange.ChangeBackgroundColor <| randomGlColor()
-        | _ -> StateChange.NoChange
+        | Key.Escape ->  UserStateChange.EndGame
+        | Key.Up -> UserStateChange.ChangePosition {X = 0.0; Y = 0.01}
+        | Key.Down -> UserStateChange.ChangePosition {X = 0.0; Y = -0.01}
+        | Key.Right -> UserStateChange.ChangePosition {X = -0.01; Y = 0.0}
+        | Key.Left -> UserStateChange.ChangePosition {X = 0.01; Y = 0.0}
+        | _ -> UserStateChange.NoChange
 
     let updateGameState (state: GameState)  change = 
         match change with 
-        | StartGame -> state
-        | ChangeBackgroundColor color -> {state with BackgroundColor = color}
+        | ChangePosition posChange-> 
+            let pos = state.Ship.Position
+            let newPos = {X = pos.X + posChange.X; Y = pos.Y + posChange.Y}
+            printfn "%A" newPos
+            let newShip = {state.Ship with Position = newPos}
+            {state with Ship = newShip}
         | EndGame -> {state with Running=Stop}
         | NoChange -> state
 
-    let loadSubscription = game.Load.Subscribe load
-    let resizeSubscription = game.Resize.Subscribe resize
+    use loadSubscription = game.Load.Subscribe load
+    use resizeSubscription = game.Resize.Subscribe resize 
 
-    let startGameSubscription = 
+    (*Below, the game state is being stored in a reference cell instead of being passed through the observable functions
+        The reason is that my original approach that passed the state on directly caused a memory leak. 
+        I'm not sure if it was due to my original code, or an issue with the library, but this a simple alternative that means the code is nearly the same,
+        with a little local mutability.
+        
+        Also, reference cell is used instead of a mutable value because mutable values cannot be captured by lambdas. 
+        For a longer explaination see: https://lorgonblog.wordpress.com/2008/11/12/on-lambdas-capture-and-mutability/ 
+        Also msdn reference : https://msdn.microsoft.com/en-us/library/dd233186.aspx*)
+    let currentGameState = ref initialState
 
-        let startGameObservable,triggerGameStart = 
-            let internalEvent = new Event<StateChange>()
-            let observable = internalEvent.Publish
-            let trigger() = internalEvent.Trigger(StartGame)
-            (observable,trigger)
+    use updateGameStateSub = 
+        game.KeyDown
+        |> Observable.map keyDown
+        |> Observable.scan updateGameState !currentGameState  
+        |> Observable.subscribe (fun state -> currentGameState := state)
 
-        let updateGameStateStream = 
-            game.KeyDown
-            |> Observable.map keyDown
-            |> Observable.merge startGameObservable
-            |> Observable.scan updateGameState initialState  
+    use renderFrameSub = 
+        game.RenderFrame
+        |> Observable.subscribe(fun _ -> renderFrame !currentGameState)
 
-        let currentGameState = ref initialState
-        let updateCurrentStateSub = updateGameStateStream |> Observable.subscribe (fun state -> currentGameState := state)
-
-        let renderFrameSub = 
-            game.RenderFrame
-            |> Observable.subscribe(fun _ -> renderFrame !currentGameState)
-
-        let updateFrameSub = 
-            game.UpdateFrame
-            |> Observable.subscribe(fun _ -> updateFrame !currentGameState)
-        triggerGameStart
-
-    startGameSubscription()
+    use updateFrameSub = 
+        game.UpdateFrame
+        |> Observable.subscribe(fun _ -> updateFrame !currentGameState)
         
     game.Run(60.0)
+
     0 

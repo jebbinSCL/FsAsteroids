@@ -1,32 +1,29 @@
 ﻿module Domain
 
-open System
-open System.Drawing
-
-open OpenTK
-open OpenTK.Graphics
-open OpenTK.Graphics.OpenGL
-
-open GlHelpers
-
-type Point = { X: float32; Y: float32 }
-
-type ColorPoint = {
-    Color: GlColor    
-    Point: Point
-}
-
-type Triangle = { V1: Point; V2: Point; V3: Point }
-
-type Velocity = { 
-    Direction: float
-    Size: float
-}
-        
+open Geometry
+      
 type Ship = { 
     Position: Point
-    Velocity: Velocity 
+    Velocity: Vector 
 }
 
-// use a function to transform a Ship to a list of coloured points for passing to OpenGL
-//let renderShip (s:Ship): ColorPoint list = ...
+type GameRunning =
+    | Continue
+    | Stop
+
+type GameState = {
+    Running : GameRunning
+    Ship : Ship
+}
+
+//For state changes based on user events. 
+//Probably a good idea to have a seperate union for state changes base on internal game events
+type UserStateChange = 
+    | EndGame
+    | ChangePosition of Point 
+    | NoChange
+
+let initialState = { 
+    Running = Continue
+    Ship = { Position = {X = 0.0; Y = 0.0;}; Velocity = {Dx = 0.0; Dy = 0.0} }
+}
