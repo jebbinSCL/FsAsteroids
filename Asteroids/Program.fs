@@ -88,12 +88,12 @@ let main _ =
         Also, reference cell is used instead of a mutable value because mutable values cannot be captured by lambdas. 
         For a longer explaination see: https://lorgonblog.wordpress.com/2008/11/12/on-lambdas-capture-and-mutability/ 
         Also msdn reference : https://msdn.microsoft.com/en-us/library/dd233186.aspx*)
-    let currentGameState = ref initialState
+    let currentGameState = ref Domain.initialState
 
     use updateGameStateSub = 
         game.KeyDown
         |> Observable.map keyDown
-        |> Observable.scan updateGameState !currentGameState  
+        |> Observable.scan updateGameState Domain.initialState 
         |> Observable.subscribe (fun state -> currentGameState := state)
 
     use renderFrameSub = 
