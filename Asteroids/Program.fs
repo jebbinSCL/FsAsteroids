@@ -8,6 +8,29 @@ open OpenTK.Input
 open Geometry
 open Domain
 
+(*
+    Note: While we are calling this an Asteroids clone, we will probably deviate from it quite a lot...
+
+    References: 
+    http://www.opentk.com/
+    Reactive Programming intro with observables and f# http://fsharpforfunandprofit.com/posts/concurrency-reactive/ 
+    The introduction to Reactive Programming you've been missing : https://gist.github.com/staltz/868e7e9bc2a7b8c1f754
+
+    If you want more library methods for observables, look into the .net reactive extensions:
+        MSDN Reactive extensions : https://msdn.microsoft.com/en-us/library/hh242985%28v=vs.103%29.aspx
+        FSharp.Control.Reactive - Provides Fsharp style access to reactive extensions (Untested by me, not sure if it is the recommended library) : http://fsprojects.github.io/FSharp.Control.Reactive/
+
+    Tasks:
+        - Refactor the open GL Program.fs 
+        - Reach functionality goal of : 
+            Deal with basic ship movement: 
+                1. Left and Right arrow should rotate the ship
+                2. Forward arrow should cause acceleration
+                3. Backwards arrow should cause deceleration
+                4. (Harder / More annoying) teleport on exiting screen. Note: Decide as a group: Do we want to implement this or different behaviour? 
+        - Test as much as possible!
+*)
+
 [<EntryPoint>]
 let main _ = 
     use game = new GameWindow(800, 600, GraphicsMode.Default, "Asteroids")
