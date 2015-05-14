@@ -9,16 +9,11 @@ open Geometry
 open Domain
 
 (*
-    Note: While we are calling this an Asteroids clone, we will probably deviate from it quite a lot...
+    Note: While we are calling this an Asteroids clone, we may deviate from it...
 
     References: 
     http://www.opentk.com/
     Reactive Programming intro with observables and f# http://fsharpforfunandprofit.com/posts/concurrency-reactive/ 
-    The introduction to Reactive Programming you've been missing : https://gist.github.com/staltz/868e7e9bc2a7b8c1f754
-
-    If you want more library methods for observables, look into the .net reactive extensions:
-        MSDN Reactive extensions : https://msdn.microsoft.com/en-us/library/hh242985%28v=vs.103%29.aspx
-        FSharp.Control.Reactive - Provides Fsharp style access to reactive extensions (Untested by me, not sure if it is the recommended library) : http://fsprojects.github.io/FSharp.Control.Reactive/
 
     Tasks:
         - Refactor the open GL Program.fs 
@@ -27,7 +22,7 @@ open Domain
                 1. Left and Right arrow should rotate the ship
                 2. Forward arrow should cause acceleration
                 3. Backwards arrow should cause deceleration
-                4. (Harder / More annoying) teleport on exiting screen. Note: Decide as a group: Do we want to implement this or different behaviour? 
+                4. Asteroids style position wrap around when an object leaves the screen. PLay the asteroids game if you cant remember it!
         - Test as much as possible!
 *)
 
@@ -70,9 +65,16 @@ let main _ =
             One other thing to note about the coordinates: The screen coordinate system is not between nice numbers. 
             I attempted to clean that up, but I've had no luck so far. 
          *) 
+
         GL.Color3(1., 0., 0.); GL.Vertex3(shipPos.X + -0.1, shipPos.Y + -0.1, 4.) 
         GL.Color3(1., 0., 0.); GL.Vertex3(shipPos.X + 0.1, shipPos.Y + -0.1, 4.)
         GL.Color3(0.2, 0.9, 1.); GL.Vertex3(shipPos.X + 0., shipPos.Y + 0.1, 4.)
+        GL.End()
+
+        //Draw Ship Centre - Note: I've added this so you can see where the ship position is. 
+        PrimitiveType.Points |> GL.Begin
+
+        GL.Color3(1., 1., 1.); GL.Vertex3(shipPos.X, shipPos.Y, 4.) 
         GL.End()
 
         // Game is double buffered
@@ -94,7 +96,7 @@ let main _ =
         | ChangePosition posChange-> 
             let pos = state.Ship.Position
             let newPos = {X = pos.X + posChange.X; Y = pos.Y + posChange.Y}
-            printfn "%A" newPos
+            printfn "%A" newPos // Delete this line: This is only to show bounds of coordinates. 
             let newShip = {state.Ship with Position = newPos}
             {state with Ship = newShip}
         | EndGame -> {state with Running=Stop}
