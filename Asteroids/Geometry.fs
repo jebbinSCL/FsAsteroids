@@ -4,9 +4,9 @@ open System
 [<Measure>] type radian
 [<Measure>] type degree
 
-let convertDegreeToRadian (angle : float<degree>) : float<radian> = 
-    let radiansPerDegree  = (Math.PI * 1.0<radian>) / 180.0<degree>
-    radiansPerDegree * angle
+let radiansPerDegree  = (Math.PI * 1.0<radian>) / 180.0<degree>
+
+let convertDegreeToRadian (angle : float<degree>) : float<radian> = radiansPerDegree * angle
 
 type Point = { X: float; Y: float }
 type Vector = { Dx: float; Dy: float }
