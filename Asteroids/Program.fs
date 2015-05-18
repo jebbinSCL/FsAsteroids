@@ -30,18 +30,9 @@ open Domain
 let main _ = 
     use game = new GameWindow(800, 600, GraphicsMode.Default, "Asteroids")
 
-    let load _ =
-        // Some game and OpenGL Setup
-        game.VSync <- VSyncMode.On
-        GL.Enable(EnableCap.Blend)
-        GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One)
+    let load _ = GameOpenGlConfig.gameLoadConfig game
 
-    let resize _ = 
-        //Setup of projection matrix for game
-        GL.Viewport(game.ClientRectangle.X, game.ClientRectangle.Y, game.ClientRectangle.Width, game.ClientRectangle.Height)
-        let mutable projection = Matrix4.CreatePerspectiveFieldOfView(float32 (Math.PI / 4.), float32 game.Width / float32 game.Height, 0.001f, 5.0f)
-        GL.MatrixMode(MatrixMode.Projection)
-        GL.LoadMatrix(&projection)
+    let resize _ = GameOpenGlConfig.gameResizeConfig game
 
     let updateFrame (state :GameState) =
         match state.Running with 
@@ -50,11 +41,7 @@ let main _ =
 
     let renderFrame (state: GameState)  =
 
-        //OpenGL Stuff to set view
-        GL.Clear(ClearBufferMask.ColorBufferBit ||| ClearBufferMask.DepthBufferBit)
-        let mutable modelview = Matrix4.LookAt(Vector3.Zero, Vector3.UnitZ, Vector3.UnitY)
-        GL.MatrixMode(MatrixMode.Modelview)
-        GL.LoadMatrix(&modelview)
+        GameOpenGlConfig.gameRenderConfig()
 
         // Draw triangle based on ship position
         PrimitiveType.Triangles |> GL.Begin
