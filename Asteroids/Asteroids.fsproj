@@ -55,7 +55,10 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="Geometry.fs" />
+    <Compile Include="Physics.fs" />
     <Compile Include="Domain.fs" />
+    <Compile Include="GameConfig.fs" />
+    <Compile Include="Render.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
