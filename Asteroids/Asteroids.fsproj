@@ -56,7 +56,9 @@
   <ItemGroup>
     <Compile Include="Geometry.fs" />
     <Compile Include="Physics.fs" />
+    <Compile Include="Ship.fs" />
     <Compile Include="Domain.fs" />
+    <Compile Include="Keyboard.fs" />
     <Compile Include="GameConfig.fs" />
     <Compile Include="Render.fs" />
     <Compile Include="Program.fs" />

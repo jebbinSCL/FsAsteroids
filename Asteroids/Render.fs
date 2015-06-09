@@ -1,6 +1,7 @@
 ﻿module Render
 
 open Domain
+open Ship
 open Geometry
 open OpenTK.Graphics.OpenGL
 
@@ -13,11 +14,13 @@ let private renderColoredPoint (point : ColoredPoint2d) =
 let renderShip (ship : Ship) = 
      // Draw triangle based on ship position
     PrimitiveType.Triangles |> GL.Begin
-    let shipBody = 
-        ship.BodyWrtOrigin.AsSeq 
-        |> Seq.map (fun x -> {x with Point = rotatePointWrtOrigin ship.Heading x.Point |> addPoints ship.Position})  
+        
+    let shipBody= 
+        ship.BodyWrtOrigin 
+        |> rotateColoredTriangleWrtOrigin ship.Heading 
+        |> translateColoredTriangleByPoint ship.Position
     
-    for point in shipBody do
+    for point in shipBody.AsSeq do
         renderColoredPoint point
 
     GL.End()

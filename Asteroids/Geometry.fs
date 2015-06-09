@@ -1,6 +1,7 @@
 ﻿module Geometry
 
 open System
+
 [<Measure>] type radian
 [<Measure>] type degree
 
@@ -37,6 +38,9 @@ type ColoredTriangle2d = { P1:ColoredPoint2d; P2:ColoredPoint2d; P3:ColoredPoint
 let addPoints (p1 : Point2d) (p2 : Point2d) = 
     {X = p1.X + p2.X; Y = p1.Y + p2.Y }
 
+let addPointToColoredPoint (p : Point2d) (cp : ColoredPoint2d) = 
+    {cp with Point = addPoints p cp.Point}
+
 let addVectors (p1 : Vector2d) (p2 : Vector2d) = 
     {Dx = p1.Dx + p2.Dx; Dy = p1.Dy + p2.Dy }
 
@@ -49,10 +53,21 @@ let rotatePointWrtOrigin (angle : float<degree>) (p : Point2d)  =
 let rotateColoredPointWrtOrigin (angle : float<degree>) (p : ColoredPoint2d) = 
     {p with Point = rotatePointWrtOrigin angle p.Point}
 
+let rotateColoredTriangleWrtOrigin (angle : float<degree>) (tri : ColoredTriangle2d) = 
+    { P1 = rotateColoredPointWrtOrigin angle tri.P1
+      P2 = rotateColoredPointWrtOrigin angle tri.P2
+      P3 = rotateColoredPointWrtOrigin angle tri.P3 }
+
+let translateColoredTriangleByPoint (point: Point2d) (tri : ColoredTriangle2d) = 
+    { P1 = addPointToColoredPoint point tri.P1
+      P2 = addPointToColoredPoint point tri.P2
+      P3 = addPointToColoredPoint point tri.P3 }
+
 let rotate angle v =
     let radians = float <| convertDegreeToRadian angle
     let cos = Math.Cos(radians)
     let sin = Math.Sin(radians)
     { Dx = v.Dx * cos - v.Dy * sin; Dy = v.Dx * sin + v.Dy * cos }
+
 
 

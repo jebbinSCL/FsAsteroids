@@ -25,17 +25,17 @@ open Domain
 let main _ = 
     use game = new GameWindow(960, 960, GraphicsMode.Default, "Asteroids")
 
-    let load _ = GameConfig.loadConfig game
+    let load _ = GameConfig.prepareGameOpenGL game
 
-    let resize _ = GameConfig.resizeConfig game
+    let resize _ = GameConfig.setupViewportAndProjection game
 
     let updateFrame (state: GameState) = 
         match state.Running with 
         | Continue -> ()
         | Stop -> game.Exit()
 
-    let renderFrame state  = 
-        GameConfig.renderConfig()
+    let renderFrame (state: GameState)  = 
+        GameConfig.preRenderConfigure()
         Render.renderState state
         game.SwapBuffers()
 
@@ -44,32 +44,68 @@ let main _ =
     I'm not sure if it was due to my original code, or an issue with the library, but this a simple alternative that means the code is nearly the same,
     with a little local mutability. *)
         
-    let gameState = ref Domain.initialState
+    //Should I remove the game state variable?
+//    let gameState = ref Domain.initialState
+//
+//    use loadSubscription = game.Load.Subscribe load
+//    use resizeSubscription = game.Resize.Subscribe resize      
+//
+//    use updateTriggerSubscription = 
+//        let keyDownStream = game.KeyDown |> Observable.map Keyboard.transformKeyDown
+//        let keyUpStream = game.KeyUp |> Observable.map Keyboard.transformKeyUp
+//
+//        let combinedUserInputStreams = keyDownStream |> Observable.merge keyUpStream
+//
+//        let timeUpdateStream = game.UpdateFrame |> Observable.map (fun _ -> Domain.TimeUpdate)
+//
+//        let updateStreams = combinedUserInputStreams |> Observable.merge timeUpdateStream
+//
+//        updateStreams
+//        |> Observable.scan Domain.updateGameState !gameState
+//        |> Observable.subscribe (fun newState -> gameState := newState)
+//
+//    use renderFrameSubscription = 
+//        game.RenderFrame
+//        |> Observable.subscribe(fun _ -> renderFrame !gameState)
+//
+//    use updateFrameSubscription = 
+//        game.UpdateFrame
+//        |> Observable.subscribe(fun _ -> updateFrame !gameState)
+
+//-----------------------------------------------------
 
     use loadSubscription = game.Load.Subscribe load
     use resizeSubscription = game.Resize.Subscribe resize      
 
-    use updateTriggerSubscription = 
-        let keyDownStream = game.KeyDown |> Observable.map Domain.transformKeyDown
-        let keyUpStream = game.KeyUp |> Observable.map Domain.transformKeyUp
-
-        let combinedUserInputStreams = keyDownStream |> Observable.merge keyUpStream
-
+    let updatedStateStream = 
+        let keyDownStream = game.KeyDown |> Observable.map Keyboard.transformKeyDown
+        let keyUpStream = game.KeyUp |> Observable.map Keyboard.transformKeyUp
         let timeUpdateStream = game.UpdateFrame |> Observable.map (fun _ -> Domain.TimeUpdate)
 
-        let updateStreams = combinedUserInputStreams |> Observable.merge timeUpdateStream
+        let updateStreams = keyDownStream |> Observable.merge keyUpStream |> Observable.merge timeUpdateStream
 
         updateStreams
-        |> Observable.scan Domain.updateGameState !gameState
-        |> Observable.subscribe (fun newState -> gameState := newState)
+        |> Observable.scan Domain.updateGameState Domain.initialState
+
+    let allEventStreams = 
+        let renderFrameStream = game.RenderFrame |> Observable.map (fun _ -> StateAction.RenderFrame Domain.initialState)
+        let updateFrameStream = game.UpdateFrame |> Observable.map (fun _ -> StateAction.UpdateFrame Domain.initialState)
+
+        updatedStateStream |> Observable.map StateAction.UpdateState
+        |> Observable.merge renderFrameStream
+        |> Observable.merge updateFrameStream
+        |> Observable.scan Domain.updateLastGameEvent (StateAction.StartGame Domain.initialState)
+
 
     use renderFrameSubscription = 
-        game.RenderFrame
-        |> Observable.subscribe(fun _ -> renderFrame !gameState)
+        allEventStreams
+        |> Observable.choose(function | StateAction.RenderFrame state -> Some(state) | _ -> None)
+        |> Observable.subscribe(fun state -> renderFrame state)
 
     use updateFrameSubscription = 
-        game.UpdateFrame
-        |> Observable.subscribe(fun _ -> updateFrame !gameState)
+        allEventStreams
+        |> Observable.choose(function | StateAction.UpdateFrame state -> Some(state) | _ -> None)
+        |> Observable.subscribe(fun state -> updateFrame state)
         
     game.Run(60.0)
     0 

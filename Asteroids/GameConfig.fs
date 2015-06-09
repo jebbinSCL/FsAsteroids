@@ -5,12 +5,13 @@ open System
 open OpenTK
 open OpenTK.Graphics.OpenGL
 
-let loadConfig (game : GameWindow) = 
+let prepareGameOpenGL (game : GameWindow) = 
     game.VSync <- VSyncMode.On
     GL.Enable(EnableCap.Blend)
     GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One)
+    GL.Enable(EnableCap.PointSprite)
 
-let resizeConfig (game : GameWindow) = 
+let setupViewportAndProjection (game : GameWindow) = 
     GL.Viewport(game.ClientRectangle.X, game.ClientRectangle.Y, game.ClientRectangle.Width, game.ClientRectangle.Height)
     let aspectRatio = float32 game.Width / float32 game.Height
     let fov = Math.PI / 2.
@@ -20,7 +21,7 @@ let resizeConfig (game : GameWindow) =
     GL.MatrixMode(MatrixMode.Projection)
     GL.LoadMatrix(&projection)
 
-let renderConfig() = 
+let preRenderConfigure() = 
     GL.Clear(ClearBufferMask.ColorBufferBit ||| ClearBufferMask.DepthBufferBit)
     let mutable modelview = Matrix4.LookAt(Vector3.Zero, Vector3.UnitZ, Vector3.UnitY)
     GL.MatrixMode(MatrixMode.Modelview)
