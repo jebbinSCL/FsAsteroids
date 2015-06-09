@@ -40,6 +40,14 @@ type StateChangeTrigger =
     | TimeUpdate
     | NoChange
 
+type GameActionTrigger = 
+    | TriggerRenderFrame
+    | TriggerUpdateFrame
+
+type GameEvent = 
+    | StateChange of StateChangeTrigger
+    | GameAction of GameActionTrigger
+
 let updateHeading state = {state with Ship = Ship.updateHeading state.Ship}
 
 let updateVelocity state = {state with Ship = Ship.updateVelocity state.Ship}
@@ -54,30 +62,41 @@ let updateStateWithTime (oldState: GameState) =
     |> updateIf (fun state -> state.Ship.Thrust <> Ship.neutralThrust) updateVelocity
     |> updateIf (fun state -> state.Ship.Velocity <> Ship.neutralVelocity) updatePosition
 
-let updateGameState (state: GameState) change = 
-    match change with 
-    | StartAcceleration newThrust-> 
-        {state with Ship = Ship.updateThrust newThrust state.Ship }
-    | StopAcceleration ->  
-        {state with Ship = Ship.updateThrust Ship.neutralThrust state.Ship }
-    | StartHeadingChange newRotationalVelocity->  
-        {state with Ship = Ship.updateRotationalVelocity newRotationalVelocity state.Ship }
-    | StopHeadingChange -> 
-        {state with Ship = Ship.updateRotationalVelocity Ship.neutralRotationalVelocity state.Ship }
-    | ToggleParticles ->
-        let newParticleState =  match state.ParticleSystemState with | On -> Off | Off -> On
-        {state with ParticleSystemState =newParticleState}
-        
-    | TimeUpdate -> updateStateWithTime state
-    | EndGame -> {state with Running=Stop}
-    | NoChange -> state
-
 let extractState (eventType : StateAction) = 
     match eventType with 
     | UpdateState state -> state
     | StartGame state -> state
     | RenderFrame state -> state
     | UpdateFrame state -> state
+
+let updateGameState (stateAction: StateAction) (gameEvent: GameEvent) = 
+    match gameEvent with
+    | StateChange change -> 
+        let state = extractState stateAction
+        let newState = 
+            match change with 
+            | StartAcceleration newThrust-> 
+                {state with Ship = Ship.updateThrust newThrust state.Ship }
+            | StopAcceleration ->  
+                {state with Ship = Ship.updateThrust Ship.neutralThrust state.Ship }
+            | StartHeadingChange newRotationalVelocity->  
+                {state with Ship = Ship.updateRotationalVelocity newRotationalVelocity state.Ship }
+            | StopHeadingChange -> 
+                {state with Ship = Ship.updateRotationalVelocity Ship.neutralRotationalVelocity state.Ship }
+            | ToggleParticles ->
+                let newParticleState =  match state.ParticleSystemState with | On -> Off | Off -> On
+                {state with ParticleSystemState =newParticleState}
+        
+            | TimeUpdate -> updateStateWithTime state
+            | EndGame -> {state with Running=Stop}
+            | NoChange -> state
+        UpdateState newState
+    | GameAction action -> 
+        match action with
+        | TriggerRenderFrame -> RenderFrame <| extractState stateAction
+        | TriggerUpdateFrame -> UpdateFrame <| extractState stateAction
+
+
 
 let updateLastGameEvent (prev : StateAction) (next : StateAction) = 
     match next with 
