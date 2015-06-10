@@ -24,12 +24,6 @@ let initialState = {
     Ship = Ship.initialShip
 }
 
-type StateAction = 
-    | UpdateState of GameState
-    | StartGame of GameState
-    | RenderFrame of GameState
-    | UpdateFrame of GameState
-
 type StateChangeTrigger = 
     | EndGame
     | StartAcceleration of Acceleration
@@ -48,6 +42,15 @@ type GameEvent =
     | StateChange of StateChangeTrigger
     | GameAction of GameActionTrigger
 
+type StateAction = 
+    | UpdateState of GameState
+    | RenderFrame of GameState
+    | UpdateFrame of GameState
+
+let extractState (action : StateAction) = 
+    match action with 
+    | UpdateState state | RenderFrame state | UpdateFrame state -> state
+
 let updateHeading state = {state with Ship = Ship.updateHeading state.Ship}
 
 let updateVelocity state = {state with Ship = Ship.updateVelocity state.Ship}
@@ -62,47 +65,36 @@ let updateStateWithTime (oldState: GameState) =
     |> updateIf (fun state -> state.Ship.Thrust <> Ship.neutralThrust) updateVelocity
     |> updateIf (fun state -> state.Ship.Velocity <> Ship.neutralVelocity) updatePosition
 
-let extractState (eventType : StateAction) = 
-    match eventType with 
-    | UpdateState state -> state
-    | StartGame state -> state
-    | RenderFrame state -> state
-    | UpdateFrame state -> state
-
-let updateGameState (stateAction: StateAction) (gameEvent: GameEvent) = 
-    match gameEvent with
-    | StateChange change -> 
-        let state = extractState stateAction
-        let newState = 
-            match change with 
-            | StartAcceleration newThrust-> 
-                {state with Ship = Ship.updateThrust newThrust state.Ship }
-            | StopAcceleration ->  
-                {state with Ship = Ship.updateThrust Ship.neutralThrust state.Ship }
-            | StartHeadingChange newRotationalVelocity->  
-                {state with Ship = Ship.updateRotationalVelocity newRotationalVelocity state.Ship }
-            | StopHeadingChange -> 
-                {state with Ship = Ship.updateRotationalVelocity Ship.neutralRotationalVelocity state.Ship }
-            | ToggleParticles ->
-                let newParticleState =  match state.ParticleSystemState with | On -> Off | Off -> On
-                {state with ParticleSystemState =newParticleState}
+let updateGameState stateAction change = 
+    let state = extractState stateAction
+    let newState = 
+        match change with 
+        | StartAcceleration newThrust-> 
+            {state with Ship = Ship.updateThrust newThrust state.Ship }
+        | StopAcceleration ->  
+            {state with Ship = Ship.updateThrust Ship.neutralThrust state.Ship }
+        | StartHeadingChange newRotationalVelocity->  
+            {state with Ship = Ship.updateRotationalVelocity newRotationalVelocity state.Ship }
+        | StopHeadingChange -> 
+            {state with Ship = Ship.updateRotationalVelocity Ship.neutralRotationalVelocity state.Ship }
+        | ToggleParticles ->
+            let newParticleState =  match state.ParticleSystemState with | On -> Off | Off -> On
+            {state with ParticleSystemState =newParticleState}
         
-            | TimeUpdate -> updateStateWithTime state
-            | EndGame -> {state with Running=Stop}
-            | NoChange -> state
-        UpdateState newState
-    | GameAction action -> 
-        match action with
-        | TriggerRenderFrame -> RenderFrame <| extractState stateAction
-        | TriggerUpdateFrame -> UpdateFrame <| extractState stateAction
+        | TimeUpdate -> updateStateWithTime state
+        | EndGame -> {state with Running=Stop}
+        | NoChange -> state
+    UpdateState newState
 
+let processGameAction stateAction action = 
+    match action with
+    | TriggerRenderFrame -> RenderFrame <| extractState stateAction
+    | TriggerUpdateFrame -> UpdateFrame <| extractState stateAction
 
+let processGameEvent (stateAction: StateAction) (gameEvent: GameEvent) = 
+    match gameEvent with
+    | StateChange change -> updateGameState stateAction change
+    | GameAction action -> processGameAction stateAction action
 
-let updateLastGameEvent (prev : StateAction) (next : StateAction) = 
-    match next with 
-    | UpdateState _ -> next
-    | StartGame _ -> next
-    | RenderFrame _ -> RenderFrame <| extractState prev
-    | UpdateFrame _ -> UpdateFrame <| extractState prev
 
 

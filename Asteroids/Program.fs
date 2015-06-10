@@ -57,7 +57,7 @@ let main _ =
         let gameEventStream = stateChangeStream |> Observable.merge gameActionStream
 
         gameEventStream
-        |> Observable.scan Domain.updateGameState (StateAction.StartGame Domain.initialState)
+        |> Observable.scan Domain.processGameEvent (StateAction.UpdateState Domain.initialState)
 
     use renderFrameSubscription = 
         updatedStateStream
