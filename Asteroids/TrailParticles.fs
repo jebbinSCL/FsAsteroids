@@ -9,7 +9,7 @@ type TrailParticle = {
     Alpha : float
 }
 
-let lifeSpan = 2.5<s>
+let lifeSpan = 3.0<s>
 
 //TODO basically the same as ship updatePosition
 let updatePosition particle = 
