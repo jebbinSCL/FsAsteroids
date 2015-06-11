@@ -34,7 +34,7 @@ let renderShip (ship : Ship) =
 
 let private renderSprite (point: Point2d) (alpha: float) = 
     //GL.PushMatrix()
-    GL.PointSize(5.0f)
+    GL.PointSize(3.0f)
     PrimitiveType.Points |> GL.Begin
     GL.Color4(0.2, 0.9, 1.0, alpha)
     GL.Vertex3(point.X, point.Y, 2.)
