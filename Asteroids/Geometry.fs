@@ -5,9 +5,20 @@ open System
 [<Measure>] type radian
 [<Measure>] type degree
 
+//TODO redo physics and Geometry and seperate out vector into magnitude and direction / rotation
 let radiansPerDegree  = (Math.PI * 1.0<radian>) / 180.0<degree>
 
 let convertDegreeToRadian (angle : float<degree>) : float<radian> = radiansPerDegree * angle
+let convertRadianToDegree (angle : float<radian>) : float<degree> = angle / radiansPerDegree
+
+let constrainDegreeTo360 (angle : float<degree>) =
+    let upperBoundary = 360.0<degree>
+    let lowerBoundary = 0.0<degree>
+        //TODO Switch to active pattern
+    match angle with
+    | tooLarge when angle > upperBoundary -> angle - upperBoundary
+    | tooSmall when angle < lowerBoundary -> angle + upperBoundary
+    | _ -> angle 
 
 type Vector2d = { Dx: float; Dy: float }
 
@@ -43,6 +54,17 @@ let addPointToColoredPoint (p : Point2d) (cp : ColoredPoint2d) =
 
 let addVectors (p1 : Vector2d) (p2 : Vector2d) = 
     {Dx = p1.Dx + p2.Dx; Dy = p1.Dy + p2.Dy }
+
+let multiplyVector (v1: Vector2d) (multiplier: float) = 
+    {Dx = v1.Dx * multiplier; Dy = v1.Dy * multiplier}
+
+let dotProduct (p1 : Vector2d) (p2 : Vector2d) =
+    p1.Dx * p2.Dx + p1.Dy * p2.Dy
+
+let norm (v1 : Vector2d) = sqrt(v1.Dx ** 2.0 + v1.Dy ** 2.0 ) 
+
+let angleBetweenVectors (p1 : Vector2d) (p2 : Vector2d) = 
+    acos(dotProduct p1 p2 / (norm p1 * norm p2)) * 1.0<radian>
 
 let rotatePointWrtOrigin (angle : float<degree>) (p : Point2d)  = 
     let radians = float <| convertDegreeToRadian angle

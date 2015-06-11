@@ -37,16 +37,8 @@ let updateThrust newThrust ship = {ship with Thrust = newThrust}
 let updateRotationalVelocity newRotationalVelocity ship = {ship with RotationalVelocity = newRotationalVelocity }
 
 let updateHeading ship = 
-    let constrain value = 
-        let upperBoundary = 360.0<degree>
-        let lowerBoundary = 0.0<degree>
-         //TODO Switch to active pattern
-        match value with
-        | tooLarge when value > upperBoundary -> value - upperBoundary
-        | tooSmall when value < lowerBoundary -> value + upperBoundary
-        | _ -> value  
     let heading = ship.Heading
-    {ship with Heading = constrain <| heading + ship.RotationalVelocity }
+    {ship with Heading = constrainDegreeTo360 <| heading + ship.RotationalVelocity }
 
 let updateVelocity ship = 
     let vel = ship.Velocity
@@ -68,10 +60,13 @@ let updateVelocity ship =
                 | tooLarge when value > 0.0 -> value - abs change
                 | tooSmall when value < 0.0 -> value + abs change
                 | _ -> value
-            {Dx = shrink dec.Dx vel.Dx ; Dy = shrink dec.Dy vel.Dy}
+            let decelAngle = convertRadianToDegree <| angleBetweenVectors vel {Dx = 0.0; Dy = 1.0}
+            let decel = rotate decelAngle dec
+            {Dx = shrink decel.Dx vel.Dx ; Dy = shrink decel.Dy vel.Dy}
         | Neutral -> vel
     {ship with Velocity = newVel}
 
+//TODO make bounds more flexible and dependant on window size / aspect
 let updatePosition ship = 
     let constrain value = 
         let upperBoundary = 2.07

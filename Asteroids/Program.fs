@@ -1,6 +1,5 @@
 ﻿open OpenTK
 open OpenTK.Graphics
-
 open Domain
 
 (*
@@ -25,9 +24,9 @@ open Domain
 let main _ = 
     use game = new GameWindow(960, 960, GraphicsMode.Default, "Asteroids")
 
-    let load _ = GameConfig.prepareGameOpenGL game
+    let load _ = GameConfig.onLoadSetup game
 
-    let resize _ = GameConfig.setupViewportAndProjection game
+    let resize _ = GameConfig.onResizeSetup game
 
     let updateFrame (state: GameState) = 
         match state.Running with 
@@ -46,7 +45,7 @@ let main _ =
         let stateChangeStream = 
             let keyDownStream = game.KeyDown |> Observable.map Keyboard.transformKeyDown
             let keyUpStream = game.KeyUp |> Observable.map Keyboard.transformKeyUp
-            let timeUpdateStream = game.UpdateFrame |> Observable.map (fun _ -> Domain.TimeUpdate)
+            let timeUpdateStream = game.UpdateFrame |> Observable.map (fun args -> Domain.TimeUpdate <| LanguagePrimitives.FloatWithMeasure args.Time)
             keyDownStream |> Observable.merge keyUpStream |> Observable.merge timeUpdateStream |> Observable.map GameEvent.StateChange
         
         let gameActionStream = 

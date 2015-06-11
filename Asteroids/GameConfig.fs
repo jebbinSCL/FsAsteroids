@@ -5,13 +5,13 @@ open System
 open OpenTK
 open OpenTK.Graphics.OpenGL
 
-let prepareGameOpenGL (game : GameWindow) = 
+let onLoadSetup (game : GameWindow) = 
     game.VSync <- VSyncMode.On
     GL.Enable(EnableCap.Blend)
     GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One)
     GL.Enable(EnableCap.PointSprite)
 
-let setupViewportAndProjection (game : GameWindow) = 
+let onResizeSetup (game : GameWindow) = 
     GL.Viewport(game.ClientRectangle.X, game.ClientRectangle.Y, game.ClientRectangle.Width, game.ClientRectangle.Height)
     let aspectRatio = float32 game.Width / float32 game.Height
     let fov = Math.PI / 2.
