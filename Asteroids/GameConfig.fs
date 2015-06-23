@@ -12,12 +12,11 @@ let onLoadSetup (game : GameWindow) =
     GL.Enable(EnableCap.PointSprite)
 
 let onResizeSetup (game : GameWindow) = 
-    GL.Viewport(game.ClientRectangle.X, game.ClientRectangle.Y, game.ClientRectangle.Width, game.ClientRectangle.Height)
-    let aspectRatio = float32 game.Width / float32 game.Height
+    let aspectRatio = float game.Width / float game.Height
     let fov = Math.PI / 2.
-    
-    let mutable projection = Matrix4.CreatePerspectiveFieldOfView(float32 fov, aspectRatio, 1.0f, 100.0f)
-    
+    let mutable projection = Matrix4.CreatePerspectiveFieldOfView(float32 fov, float32 aspectRatio, 1.0f, 100.0f)
+
+    GL.Viewport(game.ClientRectangle.X, game.ClientRectangle.Y, game.ClientRectangle.Width, game.ClientRectangle.Height)
     GL.MatrixMode(MatrixMode.Projection)
     GL.LoadMatrix(&projection)
 

@@ -28,6 +28,8 @@ let main _ =
 
     let resize _ = GameConfig.onResizeSetup game
 
+    let emitAspectRatio() = float game.Width / float game.Height
+
     let updateFrame (state: GameState) = 
         match state.Running with 
         | Continue -> ()
@@ -46,13 +48,15 @@ let main _ =
             let keyDownStream = game.KeyDown |> Observable.map Keyboard.transformKeyDown
             let keyUpStream = game.KeyUp |> Observable.map Keyboard.transformKeyUp
             let timeUpdateStream = game.UpdateFrame |> Observable.map (fun args -> Domain.TimeUpdate <| LanguagePrimitives.FloatWithMeasure args.Time)
-            keyDownStream |> Observable.merge keyUpStream |> Observable.merge timeUpdateStream |> Observable.map GameEvent.StateChange
+            let aspectRatioStream = game.Resize |> Observable.map (fun _ -> Domain.AspectRatioUpdate <| emitAspectRatio())
+            keyDownStream |> Observable.merge keyUpStream |> Observable.merge timeUpdateStream |> Observable.merge aspectRatioStream |> Observable.map GameEvent.StateChange
         
         let gameActionStream = 
             let renderFrameTriggerStream = game.RenderFrame |> Observable.map (fun _ -> GameActionTrigger.TriggerRenderFrame)
             let updateFrameTriggerStream = game.RenderFrame |> Observable.map (fun _ -> GameActionTrigger.TriggerUpdateFrame)
             renderFrameTriggerStream |> Observable.merge updateFrameTriggerStream |> Observable.map GameEvent.GameAction
 
+        
         let gameEventStream = stateChangeStream |> Observable.merge gameActionStream
 
         gameEventStream

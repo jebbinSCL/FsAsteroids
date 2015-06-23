@@ -14,7 +14,7 @@ let convertRadianToDegree (angle : float<radian>) : float<degree> = angle / radi
 let constrainDegreeTo360 (angle : float<degree>) =
     let upperBoundary = 360.0<degree>
     let lowerBoundary = 0.0<degree>
-        //TODO Switch to active pattern
+    //TODO Switch to active pattern
     match angle with
     | tooLarge when angle > upperBoundary -> angle - upperBoundary
     | tooSmall when angle < lowerBoundary -> angle + upperBoundary
