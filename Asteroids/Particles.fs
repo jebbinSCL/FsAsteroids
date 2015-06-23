@@ -52,4 +52,4 @@ let updateParticles (particles: Particle list) (elapsed: float<s>) (aspectRatio 
             let particleVelocity = {Dx = 0.0; Dy = 0.008} |> rotate heading
             {Position=shipPos; Velocity=particleVelocity; Age=0.0<s>; Alpha = 1.0}
         newParticle 0.0<degree> :: newParticle jitterValue :: newParticle -jitterValue :: particles
-    decayAndUpdateParticles elapsed aspectRatio alwaysOnParticles'
+    decayAndUpdateParticles elapsed aspectRatio thrustOnlyParticles'
