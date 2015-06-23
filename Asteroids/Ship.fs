@@ -69,15 +69,4 @@ let updateVelocity ship =
 
 //TODO make bounds more flexible and dependant on window size / aspect
 let updatePosition ship = 
-    let constrain value = 
-        let upperBoundary = 2.07
-        let lowerBoundary = -upperBoundary
-        //TODO Switch to active pattern
-        match value with 
-        | tooLarge when value > upperBoundary -> lowerBoundary
-        | tooSmall when value < lowerBoundary -> upperBoundary
-        | _ -> value
-    let pos = ship.Position
-    let vel = ship.Velocity
-    let newPos = {X =  constrain <| pos.X + vel.Dx; Y = constrain <| pos.Y + vel.Dy}
-    {ship with Position = newPos}
+    {ship with Position = Entities.updatePosition ship.Position ship.Velocity}

@@ -14,18 +14,7 @@ let lifeSpan = 3.0<s>
 
 //TODO basically the same as ship updatePosition
 let updatePosition particle = 
-    let constrain value = 
-        let upperBoundary = 2.07
-        let lowerBoundary = -upperBoundary
-        //TODO Switch to active pattern
-        match value with 
-        | tooLarge when value > upperBoundary -> lowerBoundary
-        | tooSmall when value < lowerBoundary -> upperBoundary
-        | _ -> value
-    let pos = particle.Position
-    let vel = particle.Velocity
-    let newPos = {X =  constrain <| pos.X + vel.Dx; Y = constrain <| pos.Y + vel.Dy}
-    {particle with Position = newPos}
+    {particle with Position = Entities.updatePosition particle.Position particle.Velocity}
 
 let updateParticle particle = 
     let p = updatePosition particle
