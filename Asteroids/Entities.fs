@@ -1,12 +1,11 @@
 ﻿module Entities
-open Geometry
+open Geometry  
 
 let updatePosition (aspectRatio : float) (position : Point2d) (velocity: Vector2d) = 
     let constrain ratio value = 
         let allowedExtra = 0.08
         let upperBoundary = (2.0 * ratio) + allowedExtra
         let lowerBoundary = -upperBoundary
-        //TODO Switch to active pattern
         match value with 
         | tooLarge when value > upperBoundary -> lowerBoundary
         | tooSmall when value < lowerBoundary -> upperBoundary

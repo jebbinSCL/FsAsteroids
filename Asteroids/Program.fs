@@ -3,21 +3,7 @@ open OpenTK.Graphics
 open Domain
 
 (*
-    References: 
-    http://www.opentk.com/
-    Reactive Programming intro with observables and f# http://fsharpforfunandprofit.com/posts/concurrency-reactive/ 
-    Reference cells and "mutable values cannot be capturred by lambdas" https://lorgonblog.wordpress.com/2008/11/12/on-lambdas-capture-and-mutability/ 
-    Reference Cells : https://msdn.microsoft.com/en-us/library/dd233186.aspx
-
-    Tasks:
-        - Refactor the open GL Program.fs - Done
-        - Reach functionality goal of : 
-            Deal with basic ship movement: 
-                1. Left and Right arrow should rotate the ship
-                2. Forward arrow should cause acceleration
-                3. Backwards arrow should cause deceleration
-                4. Asteroids style position wrap around when an object leaves the screen. PLay the asteroids game if you cant remember it!
-        - Test as much as possible!
+    Tasks: - Test as much as possible!
 *)
 
 [<EntryPoint>]

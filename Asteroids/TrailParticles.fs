@@ -8,8 +8,7 @@ let lifeSpan = 3.0<s>
 let updateParticles (particles: Particle list) (elapsed: float<s>) (aspectRatio : float) (shipPos: Point2d) (shipThrust: Acceleration) (shipHeading: float<degree>)=
     let particles' = 
         match shipThrust with 
-        | Positive accelVector-> 
-            let heading = constrainDegreeTo360 <| shipHeading + 180.0<degree>
+        | Positive _-> 
             let particleVelocity = {Dx=0.0; Dy = 0.0}
             {Position=shipPos; Velocity=particleVelocity; Age=0.0<s>; Alpha = 1.0} :: particles
         | _ -> 

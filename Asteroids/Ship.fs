@@ -53,8 +53,6 @@ let updateVelocity ship =
             let thrust = rotate ship.Heading acc
             {Dx = constrain <| vel.Dx + thrust.Dx; Dy = constrain  <| vel.Dy + thrust.Dy}
         | Negative dec -> 
-            //TODO Switch to active pattern
-            //TODO FIX: Deceleration should be in opposite direction of Velocity, not opposite to heading. 
             let shrink change value = 
                 let snapBoundary = 0.01
                 let targetValue = 0.0
@@ -69,6 +67,5 @@ let updateVelocity ship =
         | Neutral -> vel
     {ship with Velocity = newVel}
 
-//TODO make bounds more flexible and dependant on window size / aspect
 let updatePosition (aspectRatio : float) ship = 
     {ship with Position = Entities.updatePosition aspectRatio ship.Position ship.Velocity}
