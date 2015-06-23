@@ -31,25 +31,28 @@ let updateParticle particle =
     let p = updatePosition particle
     {p with Alpha = 1.0 - p.Age / lifeSpan} 
 
-let jitterDegree (random: Random) = 
-    let range = 10.0<degree>
-    let jitter = (random.NextDouble() * range) - (range/2.0)
-    jitter
+let decayAndUpdateParticles (elapsed: float<s>) particles = 
+    let aliveParticles = particles |> List.map (fun p -> {p with Age=p.Age + elapsed}) |> List.filter(fun p -> p.Age < lifeSpan)
+    aliveParticles
+    |> List.map updateParticle
 
-//TODO add jitter
 let updateParticles (particles: Particle list) (elapsed: float<s>) (shipPos: Point2d) (shipThrust: Acceleration) (shipHeading: float<degree>)= 
     let random = new System.Random()
-    match shipThrust with 
-    | Positive accelVector-> 
-        let jitterValue = jitterDegree random
-        let newParticle jitter = 
-            let heading = constrainDegreeTo360 <| shipHeading + 180.0<degree> + jitter
-            let particleVelocity = multiplyVector accelVector 4.0 |> rotate heading
-            {Position=shipPos; Velocity=particleVelocity; Age=0.0<s>; Alpha = 1.0}
-        let aliveParticles = particles |> List.map (fun p -> {p with Age=p.Age + elapsed}) |> List.filter(fun p -> p.Age < lifeSpan)
-        newParticle 0.0<degree> :: newParticle jitterValue :: newParticle -jitterValue :: aliveParticles
-        |> List.map updateParticle
-    | _ -> 
-        let aliveParticles = particles |> List.map (fun p -> {p with Age=p.Age + elapsed}) |> List.filter(fun p -> p.Age < lifeSpan)
-        aliveParticles
-        |> List.map updatePosition
+
+    let jitterDegree (random: Random) = 
+        let range = 10.0<degree>
+        let jitter = (random.NextDouble() * range) - (range/2.0)
+        jitter
+
+    let particles' = 
+        match shipThrust with 
+        | Positive accelVector-> 
+            let jitterValue = jitterDegree random
+            let newParticle jitter = 
+                let heading = constrainDegreeTo360 <| shipHeading + 180.0<degree> + jitter
+                let particleVelocity = multiplyVector accelVector 4.0 |> rotate heading
+                {Position=shipPos; Velocity=particleVelocity; Age=0.0<s>; Alpha = 1.0}
+            newParticle 0.0<degree> :: newParticle jitterValue :: newParticle -jitterValue :: particles
+        | _ -> 
+            particles
+    decayAndUpdateParticles elapsed particles'

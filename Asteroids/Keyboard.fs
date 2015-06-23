@@ -15,6 +15,7 @@ let transformKeyDown (args: KeyboardKeyEventArgs) =
     | Key.Left -> StartHeadingChange -5.0<degree>
     | Key.T -> ToggleTrail
     | Key.P -> ToggleParticles
+    | Key.Space -> FireRocket
     | _ -> NoChange
 
 let transformKeyUp (args: KeyboardKeyEventArgs) = 

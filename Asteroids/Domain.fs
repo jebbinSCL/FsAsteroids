@@ -15,8 +15,9 @@ type GameState = {
     TrailIsActive : bool
     ParticlesAreActive : bool
     Ship : Ship
-    TrailParticles : TrailParticle list
+    TrailParticles : Particle list
     Particles : Particle list
+    Rockets : Particle list
 }
 
 let initialState = { 
@@ -26,6 +27,7 @@ let initialState = {
     Ship = Ship.initialShip
     TrailParticles = []
     Particles = []
+    Rockets = []
 }
 
 type StateChangeTrigger = 
@@ -36,6 +38,7 @@ type StateChangeTrigger =
     | StopHeadingChange
     | ToggleTrail
     | ToggleParticles
+    | FireRocket
     | TimeUpdate of float<s>
     | NoChange
 
@@ -70,6 +73,10 @@ let updateParticles (elapsed : float<s>) (state: GameState) =
     let particles = Particles.updateParticles state.Particles elapsed state.Ship.Position state.Ship.Thrust state.Ship.Heading
     {state with Particles = particles} 
 
+let updateRockets (elapsed : float<s>) (state: GameState) = 
+    let rockets = Rockets.updateRockets elapsed state.Rockets
+    {state with Rockets = rockets}
+
 let updateStateWithTime (oldState: GameState) (elapsed : float<s>) = 
     let updateIf condition transform value = if condition value then transform value else value
 
@@ -79,6 +86,7 @@ let updateStateWithTime (oldState: GameState) (elapsed : float<s>) =
     |> updateIf (fun state -> state.Ship.Velocity <> Ship.neutralVelocity) updatePosition
     |> updateIf (fun state -> state.ParticlesAreActive) (updateParticles elapsed)
     |> updateIf (fun state -> state.TrailIsActive) (updateTrail elapsed)
+    |> updateRockets elapsed
 
 let updateGameState stateAction change = 
     let state = extractState stateAction
@@ -96,6 +104,7 @@ let updateGameState stateAction change =
             {state with TrailIsActive = not state.TrailIsActive; TrailParticles = []}
         | ToggleParticles ->
             {state with ParticlesAreActive = not state.ParticlesAreActive; Particles = []}
+        | FireRocket -> {state with Rockets = Rockets.createRocket state.Ship.Position state.Ship.Heading :: state.Rockets}
         | TimeUpdate elapsedSeconds-> updateStateWithTime state elapsedSeconds
         | EndGame -> {state with Running=Stop}
         | NoChange -> state

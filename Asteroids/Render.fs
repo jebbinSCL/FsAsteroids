@@ -48,6 +48,9 @@ let renderParticles (state: GameState) =
     for point in state.TrailParticles do
         renderSprite point.Position point.Alpha
 
+    for point in state.Rockets do 
+        renderSprite point.Position point.Alpha
+
 let renderState (state: GameState) = 
     renderShip state.Ship
     renderParticles state
