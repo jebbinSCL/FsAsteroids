@@ -26,22 +26,18 @@ let main _ =
 
     let updatedStateStream = 
         let stateChangeStream = 
-            let keyStateTriggerStream = Keyboard.createKeyBoardStream game
-
             let timeUpdateStream = game.UpdateFrame |> Observable.map (fun args -> Domain.TimeUpdate <| LanguagePrimitives.FloatWithMeasure args.Time)
             let aspectRatioStream = game.Resize |> Observable.map (fun _ -> Domain.AspectRatioUpdate <| float game.Width / float game.Height)
-            keyStateTriggerStream |> Observable.merge timeUpdateStream |> Observable.merge aspectRatioStream |> Observable.map GameEvent.StateChange
+            Keyboard.createKeyboardTriggerStream game |> Observable.merge timeUpdateStream |> Observable.merge aspectRatioStream |> Observable.map GameEvent.StateChange
         
         let gameActionStream = 
             let renderFrameTriggerStream = game.RenderFrame |> Observable.map (fun _ -> GameActionTrigger.TriggerRenderFrame)
             let updateFrameTriggerStream = game.UpdateFrame |> Observable.map (fun _ -> GameActionTrigger.TriggerUpdateFrame)
             renderFrameTriggerStream |> Observable.merge updateFrameTriggerStream |> Observable.map GameEvent.GameAction
 
-        
-        let gameEventStream = stateChangeStream |> Observable.merge gameActionStream
-
-        gameEventStream
-        |> Observable.scan Domain.processGameEvent (StateAction.UpdateState Domain.initialState)
+        stateChangeStream 
+        |> Observable.merge gameActionStream        
+        |> Observable.scan Domain.processGameEvent (StateAction.UpdateState Domain.initialGameState)
 
     use renderFrameSubscription = 
         updatedStateStream

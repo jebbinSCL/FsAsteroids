@@ -23,18 +23,6 @@ type GameState = {
     Rockets : Particle list
 }
 
-let initialState = { 
-    Running = Continue
-    AspectRatio = 1.0
-    TrailIsActive = false
-    ParticlesAreActive = false
-    Ship = Ship.initialShip
-    Asteroids = []
-    TrailParticles = []
-    Particles = []
-    Rockets = []
-}
-
 type StateChangeTrigger = 
     | EndGame
     | ChangeAcceleration of Acceleration
@@ -58,6 +46,18 @@ type StateAction =
     | UpdateState of GameState
     | RenderFrame of GameState
     | UpdateFrame of GameState
+
+let initialGameState = { 
+    Running = Continue
+    AspectRatio = 1.0
+    TrailIsActive = false
+    ParticlesAreActive = false
+    Ship = Ship.initialShip
+    Asteroids = []
+    TrailParticles = []
+    Particles = []
+    Rockets = []
+}
 
 let extractState (action : StateAction) = 
     match action with 

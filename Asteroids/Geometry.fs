@@ -19,6 +19,8 @@ let constrainDegreeTo360 (angle : float<degree>) =
     | tooSmall when angle < lowerBoundary -> angle + upperBoundary
     | _ -> angle 
 
+let randomDegreeAroundZero (random: Random) (range: float<degree>) = (random.NextDouble() * range) - (range/2.0)
+
 type Vector2d = { Dx: float; Dy: float }
 
 type Point2d = { X: float; Y: float }

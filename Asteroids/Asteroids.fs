@@ -24,16 +24,13 @@ let createAsteroidBody() =
 
 let createAsteroid (aspectRatio : float)= 
     let randomHeading = randomInstance.NextDouble() * 360.0<degree>
-    let xLoc = 
-        let xBound = positionBoundary aspectRatio
-        (randomInstance.NextDouble() * xBound * 2.0) - (xBound/2.0)
-    let yLoc = 
-        let yBound = positionBoundary neutralRatio
-        (randomInstance.NextDouble() * yBound * 2.0) - (yBound/2.0)
+    let randLoc ratio = 
+        let bound = positionMaximumValue aspectRatio
+        (randomInstance.NextDouble() * bound * 2.0) - (bound/2.0)
 
     let velocityMagintude = randomInstance.NextDouble() * 0.006 + 0.002
     let velocity = {Dx = 0.0; Dy = velocityMagintude} |> rotateVector randomHeading
-    {Position= {X =xLoc; Y = yLoc }; Velocity = velocity; BodyWrtOrigin = createAsteroidBody()}
+    {Position= {X =randLoc aspectRatio; Y = randLoc neutralRatio }; Velocity = velocity; BodyWrtOrigin = createAsteroidBody()}
 
 let updateAsteroid aspectRatio (asteroid : Asteroid) = 
     {asteroid with Position = Entities.updatePosition aspectRatio asteroid.Position asteroid.Velocity}

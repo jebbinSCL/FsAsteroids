@@ -13,12 +13,12 @@ let private renderColoredPoint (point : ColoredPoint2d) =
     GL.Color4(c.R, c.G, c.B, 1.0); 
     GL.Vertex3(p.X,p.Y, 2.)
 
-let private renderPoint (point : Point2d) = 
-    GL.Color4(1.0, 1.0, 1.0, 1.0); 
-    GL.Vertex3(point.X,point.Y, 2.)
-
 let private renderPointWithColor (color : Color3) (point : Point2d) = 
     GL.Color4(color.R, color.G, color.B, 1.0); 
+    GL.Vertex3(point.X,point.Y, 2.)
+
+let private renderPoint (point : Point2d) = 
+    GL.Color4(1.0, 1.0, 1.0, 1.0); 
     GL.Vertex3(point.X,point.Y, 2.)
 
 let renderShip (ship : Ship) = 
@@ -43,13 +43,8 @@ let private renderSprite (point: Point2d) (alpha: float) =
     GL.End()
 
 let renderParticles (state: GameState) = 
-    for point in state.Particles do
-        renderSprite point.Position point.Alpha
-
-    for point in state.TrailParticles do
-        renderSprite point.Position point.Alpha
-
-    for point in state.Rockets do 
+    let allParticles = seq{ yield! state.Particles; yield! state.TrailParticles; yield! state.Rockets}
+    for point in allParticles do
         renderSprite point.Position point.Alpha
 
 let asteroidColor = {R=0.2; G=0.2; B=0.2}
