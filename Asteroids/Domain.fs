@@ -5,6 +5,7 @@ open Physics
 open Ship
 open TrailParticles
 open Particles
+open Asteroids
 
 type GameRunning =
     | Continue
@@ -16,6 +17,7 @@ type GameState = {
     TrailIsActive : bool
     ParticlesAreActive : bool
     Ship : Ship
+    Asteroids : Asteroid list
     TrailParticles : Particle list
     Particles : Particle list
     Rockets : Particle list
@@ -27,6 +29,7 @@ let initialState = {
     TrailIsActive = false
     ParticlesAreActive = false
     Ship = Ship.initialShip
+    Asteroids = []
     TrailParticles = []
     Particles = []
     Rockets = []
@@ -34,10 +37,8 @@ let initialState = {
 
 type StateChangeTrigger = 
     | EndGame
-    | StartAcceleration of Acceleration
-    | StopAcceleration
-    | StartHeadingChange of float<degree>
-    | StopHeadingChange
+    | ChangeAcceleration of Acceleration
+    | ChangeHeading of float<degree>
     | ToggleTrail
     | ToggleParticles
     | FireRocket
@@ -80,29 +81,29 @@ let updateRockets (elapsed : float<s>) (aspectRatio : float) (state: GameState) 
     let rockets = Rockets.updateRockets elapsed aspectRatio state.Rockets
     {state with Rockets = rockets}
 
+let updateAsteroids (elapsed : float<s>) (aspectRatio : float) (state: GameState) = 
+    let asteroids = Asteroids.updateAsteroids elapsed aspectRatio state.Asteroids
+    {state with Asteroids = asteroids}
+
 let updateStateWithTime (oldState: GameState)  (elapsed : float<s>) = 
     let updateIf condition transform value = if condition value then transform value else value
-    //TODO rather than pass aspect ratio to everything, fix value in updatePos function and pass function
     oldState 
-    |> updateIf (fun state -> state.Ship.RotationalVelocity <> Ship.neutralRotationalVelocity) updateHeading
-    |> updateIf (fun state -> state.Ship.Thrust <> Ship.neutralThrust) updateVelocity
-    |> updateIf (fun state -> state.Ship.Velocity <> Ship.neutralVelocity) (updatePosition oldState.AspectRatio)
+    |> updateIf (fun state -> state.Ship.RotationalVelocity <> Physics.neutralRotationalVelocity) updateHeading
+    |> updateIf (fun state -> state.Ship.Thrust <> Acceleration.Neutral) updateVelocity
+    |> updateIf (fun state -> state.Ship.Velocity <> Physics.neutralVelocity) (updatePosition oldState.AspectRatio)
     |> updateIf (fun state -> state.ParticlesAreActive) (updateParticles elapsed oldState.AspectRatio)
     |> updateIf (fun state -> state.TrailIsActive) (updateTrail elapsed oldState.AspectRatio)
     |> updateRockets elapsed oldState.AspectRatio
+    |> updateAsteroids elapsed oldState.AspectRatio
 
 let updateGameState stateAction change = 
     let state = extractState stateAction
     let newState = 
         match change with 
-        | StartAcceleration newThrust-> 
+        | ChangeAcceleration newThrust-> 
             {state with Ship = Ship.updateThrust newThrust state.Ship }
-        | StopAcceleration ->  
-            {state with Ship = Ship.updateThrust Ship.neutralThrust state.Ship }
-        | StartHeadingChange newRotationalVelocity->  
+        | ChangeHeading newRotationalVelocity->  
             {state with Ship = Ship.updateRotationalVelocity newRotationalVelocity state.Ship }
-        | StopHeadingChange -> 
-            {state with Ship = Ship.updateRotationalVelocity Ship.neutralRotationalVelocity state.Ship }
         | ToggleTrail ->
             {state with TrailIsActive = not state.TrailIsActive; TrailParticles = []}
         | ToggleParticles ->

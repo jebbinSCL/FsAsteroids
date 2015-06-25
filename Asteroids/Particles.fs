@@ -11,8 +11,8 @@ type Particle = {
 }
 
 let lifeSpan = 3.0<s>
+let randomInstance = new System.Random()
 
-//TODO basically the same as ship updatePosition
 let updatePosition (aspectRatio : float) particle = 
     {particle with Position = Entities.updatePosition aspectRatio particle.Position particle.Velocity}
 
@@ -22,34 +22,27 @@ let updateParticle (aspectRatio : float) particle =
 
 let decayAndUpdateParticles (elapsed: float<s>) (aspectRatio : float) particles = 
     let aliveParticles = particles |> List.map (fun p -> {p with Age=p.Age + elapsed}) |> List.filter(fun p -> p.Age < lifeSpan)
-    aliveParticles
+    aliveParticles 
     |> List.map (updateParticle aspectRatio)
 
 let updateParticles (particles: Particle list) (elapsed: float<s>) (aspectRatio : float) (shipPos: Point2d) (shipThrust: Acceleration) (shipHeading: float<degree>)= 
-    let random = new System.Random()
 
-    let jitterDegree (random: Random) = 
-        let range = 10.0<degree>
+    let jitterDegree (random: Random) (range: float<degree>) = 
         let jitter = (random.NextDouble() * range) - (range/2.0)
         jitter
 
     let thrustOnlyParticles' = 
         match shipThrust with 
-        | Positive accelVector-> 
-            let jitterValue = jitterDegree random
+        | Positive _-> 
+            let jitterValue0 = jitterDegree randomInstance 2.0<degree>
+            let jitterValue1 = jitterDegree randomInstance 15.0<degree>
+            let jitterValue2 = jitterDegree randomInstance 15.0<degree>
             let newParticle jitter = 
                 let heading = constrainDegreeTo360 <| shipHeading + 180.0<degree> + jitter
-                let particleVelocity = {Dx = 0.0; Dy = 0.008} |> rotate heading
+                let particleVelocity = {Dx = 0.0; Dy = 0.008} |> rotateVector heading
                 {Position=shipPos; Velocity=particleVelocity; Age=0.0<s>; Alpha = 1.0}
-            newParticle 0.0<degree> :: newParticle jitterValue :: newParticle -jitterValue :: particles
+            newParticle jitterValue0 :: newParticle jitterValue1 :: newParticle -jitterValue2 :: particles
         | _ -> 
             particles
 
-    let alwaysOnParticles' = 
-        let jitterValue = jitterDegree random
-        let newParticle jitter = 
-            let heading = constrainDegreeTo360 <| shipHeading + 180.0<degree> + jitter
-            let particleVelocity = {Dx = 0.0; Dy = 0.008} |> rotate heading
-            {Position=shipPos; Velocity=particleVelocity; Age=0.0<s>; Alpha = 1.0}
-        newParticle 0.0<degree> :: newParticle jitterValue :: newParticle -jitterValue :: particles
     decayAndUpdateParticles elapsed aspectRatio thrustOnlyParticles'

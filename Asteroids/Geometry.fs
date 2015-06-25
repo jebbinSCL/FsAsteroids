@@ -14,7 +14,6 @@ let convertRadianToDegree (angle : float<radian>) : float<degree> = angle / radi
 let constrainDegreeTo360 (angle : float<degree>) =
     let upperBoundary = 360.0<degree>
     let lowerBoundary = 0.0<degree>
-    //TODO Switch to active pattern
     match angle with
     | tooLarge when angle > upperBoundary -> angle - upperBoundary
     | tooSmall when angle < lowerBoundary -> angle + upperBoundary
@@ -85,7 +84,7 @@ let translateColoredTriangleByPoint (point: Point2d) (tri : ColoredTriangle2d) =
       P2 = addPointToColoredPoint point tri.P2
       P3 = addPointToColoredPoint point tri.P3 }
 
-let rotate angle v =
+let rotateVector angle v =
     let radians = float <| convertDegreeToRadian angle
     let cos = Math.Cos(radians)
     let sin = Math.Sin(radians)
