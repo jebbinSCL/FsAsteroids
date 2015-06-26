@@ -36,17 +36,11 @@ let transformKeyUp = function
 let createKeyboardTriggerStream (game : GameWindow) = 
     let mergeTuple a (b,c) = a,b,c
     let getKey (args: KeyboardKeyEventArgs) = args.Key
-    let downAccelStream, downHeadingStream, otherDownStream = 
-        game.KeyDown
-        |> Observable.map getKey
-        |> Observable.split (fun key -> match key with | Key.Up -> Choice1Of2 <| PositiveKey KeyPressed  | Key.Down -> Choice1Of2 <| NegativeKey KeyPressed | other -> Choice2Of2 other) 
-        |> (fun (accelStream , otherStream) -> Observable.split (fun key -> match key with | Key.Right -> Choice1Of2 <| PositiveKey KeyPressed | Key.Left -> Choice1Of2 <| NegativeKey KeyPressed | other -> Choice2Of2 other) otherStream |> mergeTuple accelStream)
-
-    let upAccelStream, upHeadingStream, otherUpStream = 
-        game.KeyUp
-        |> Observable.map getKey
-        |> Observable.split (fun key -> match key with | Key.Up -> Choice1Of2 <| PositiveKey KeyReleased  | Key.Down -> Choice1Of2 <| NegativeKey KeyReleased | other -> Choice2Of2 other) 
-        |> (fun (accelStream , otherStream) -> Observable.split (fun key -> match key with | Key.Right -> Choice1Of2 <| PositiveKey KeyReleased | Key.Left -> Choice1Of2 <| NegativeKey KeyReleased | other -> Choice2Of2 other) otherStream |> mergeTuple accelStream)
+      
+    let splitKeysPosNeg (positiveKey : Key) (negativeKey : Key) (state : KeyState) (key : Key) = 
+        if key = positiveKey then Choice1Of2 <| PositiveKey state
+        elif key = negativeKey then Choice1Of2 <| NegativeKey state 
+        else Choice2Of2 key
 
     let processActions (choices: 'a*'a*'a*'a) (state : PairedKeyState<KeyState,'a>) (nextKey : PairedKeyOptions) = 
         let state' = 
@@ -61,6 +55,18 @@ let createKeyboardTriggerStream (game : GameWindow) =
             | KeyPressed, KeyReleased -> c3
             | KeyReleased, KeyPressed -> c4
         {state' with Result = result}
+
+    let downAccelStream, downHeadingStream, otherDownStream = 
+        game.KeyDown
+        |> Observable.map getKey
+        |> Observable.split (splitKeysPosNeg Key.Up Key.Down KeyPressed)
+        |> (fun (accelStream , otherStream) -> Observable.split (splitKeysPosNeg Key.Right Key.Left KeyPressed) otherStream |> mergeTuple accelStream)
+
+    let upAccelStream, upHeadingStream, otherUpStream = 
+        game.KeyUp
+        |> Observable.map getKey
+        |> Observable.split (splitKeysPosNeg Key.Up Key.Down KeyReleased)
+        |> (fun (accelStream , otherStream) -> Observable.split (splitKeysPosNeg Key.Right Key.Left KeyReleased) otherStream |> mergeTuple accelStream)
 
     let accelStream = 
         let processAccelActions = processActions (Neutral,Positive {Dx = 0.0; Dy = 0.0},Positive {Dx = 0.0; Dy = 0.002},Negative {Dx = 0.0; Dy = 0.002})

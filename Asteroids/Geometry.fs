@@ -4,7 +4,7 @@ open System
 
 [<Measure>] type radian
 [<Measure>] type degree
-
+//TODO Cleanup Geometry file
 //TODO redo physics and Geometry and seperate out vector into magnitude and direction / rotation
 let radiansPerDegree  = (Math.PI * 1.0<radian>) / 180.0<degree>
 

@@ -25,25 +25,18 @@ let createAsteroidBody() =
 let createAsteroid (aspectRatio : float)= 
     let randomHeading = randomInstance.NextDouble() * 360.0<degree>
     let randLoc ratio = 
-        let bound = positionMaximumValue aspectRatio
+        let bound = positionMaximumValue ratio
         (randomInstance.NextDouble() * bound * 2.0) - (bound/2.0)
 
     let velocityMagintude = randomInstance.NextDouble() * 0.006 + 0.002
     let velocity = {Dx = 0.0; Dy = velocityMagintude} |> rotateVector randomHeading
     {Position= {X =randLoc aspectRatio; Y = randLoc neutralRatio }; Velocity = velocity; BodyWrtOrigin = createAsteroidBody()}
 
-let updateAsteroid aspectRatio (asteroid : Asteroid) = 
-    {asteroid with Position = Entities.updatePosition aspectRatio asteroid.Position asteroid.Velocity}
-    
+let updateAsteroid aspectRatio (asteroid : Asteroid) = {asteroid with Position = Entities.updatePosition aspectRatio asteroid.Position asteroid.Velocity}
 
-let updateAsteroidsList aspectRatio (asteroids : Asteroid list) = 
-    asteroids 
-    |> List.map (updateAsteroid aspectRatio)
+let updateAsteroidsList aspectRatio (asteroids : Asteroid list) = List.map (updateAsteroid aspectRatio) asteroids
 
 let updateAsteroids (elapsed: float<s>) (aspectRatio : float) (asteroids : Asteroid list) = 
-    if List.length asteroids < 10 then
-        let asteroids' = createAsteroid aspectRatio :: asteroids
-        updateAsteroidsList aspectRatio asteroids'
-    else 
-        updateAsteroidsList aspectRatio asteroids
+    let asteroids' = if List.length asteroids < 10 then createAsteroid aspectRatio :: asteroids else asteroids
+    updateAsteroidsList aspectRatio asteroids'
 
