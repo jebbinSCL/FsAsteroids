@@ -9,6 +9,7 @@ type Acceleration =
     | Negative of Vector2d
     | Neutral 
 
+let neutralAcceleration = Neutral
 let neutralPosition = {X = 0.0; Y = 0.0;}
 let neutralHeading = 0.0<degree>
 let neutralRotationalVelocity = 0.0<degree>

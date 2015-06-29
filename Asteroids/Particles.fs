@@ -15,14 +15,14 @@ let randomInstance = new System.Random()
 let updatePosition (aspectRatio : float) particle = 
     {particle with Position = Entities.updatePosition aspectRatio particle.Position particle.Velocity}
 
-let updateParticle (aspectRatio : float) particle = 
+let updateParticle (aspectRatio : float) (lifespan: float<s>) particle = 
     let p = updatePosition aspectRatio particle
-    {p with Alpha = 1.0 - p.Age / lifeSpan} 
+    {p with Alpha = 1.0 - p.Age / lifespan} 
 
-let decayAndUpdateParticles (elapsed: float<s>) (aspectRatio : float) particles = 
+let decayAndUpdateParticles (elapsed: float<s>) (aspectRatio : float) (lifespan : float<s>) particles = 
     let aliveParticles = particles |> List.map (fun p -> {p with Age=p.Age + elapsed}) |> List.filter(fun p -> p.Age < lifeSpan)
     aliveParticles 
-    |> List.map (updateParticle aspectRatio)
+    |> List.map (updateParticle aspectRatio lifespan)
 
 let updateParticles (particles: Particle list) (elapsed: float<s>) (aspectRatio : float) (shipPos: Point2d) (shipThrust: Acceleration) (shipHeading: float<degree>)= 
 
@@ -40,4 +40,4 @@ let updateParticles (particles: Particle list) (elapsed: float<s>) (aspectRatio 
         | _ -> 
             particles
 
-    decayAndUpdateParticles elapsed aspectRatio thrustOnlyParticles'
+    decayAndUpdateParticles elapsed aspectRatio lifeSpan thrustOnlyParticles'

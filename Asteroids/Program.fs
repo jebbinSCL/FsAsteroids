@@ -1,6 +1,7 @@
 ﻿open OpenTK
 open OpenTK.Graphics
-open Domain
+open DomainTypes
+
 
 (*
     Tasks: - Test as much as possible!
@@ -8,7 +9,12 @@ open Domain
 
 [<EntryPoint>]
 let main _ = 
+    let getAspectRatio (gw : GameWindow) = float gw.Width / float gw.Height
     use game = new GameWindow(960, 960, GraphicsMode.Default, "Asteroids")
+
+    let initialAspectRatio = getAspectRatio game
+
+    
 
     let load _ = GameConfig.onLoadSetup game
 
@@ -26,8 +32,8 @@ let main _ =
 
     let updatedStateStream = 
         let stateChangeStream = 
-            let timeUpdateStream = game.UpdateFrame |> Observable.map (fun args -> Domain.TimeUpdate <| LanguagePrimitives.FloatWithMeasure args.Time)
-            let aspectRatioStream = game.Resize |> Observable.map (fun _ -> Domain.AspectRatioUpdate <| float game.Width / float game.Height)
+            let timeUpdateStream = game.UpdateFrame |> Observable.map (fun args -> DomainTypes.TimeUpdate <| LanguagePrimitives.FloatWithMeasure args.Time)
+            let aspectRatioStream = game.Resize |> Observable.map (fun _ -> DomainTypes.AspectRatioUpdate <| getAspectRatio game)
             Keyboard.createKeyboardTriggerStream game |> Observable.merge timeUpdateStream |> Observable.merge aspectRatioStream |> Observable.map GameEvent.StateChange
         
         let gameActionStream = 
@@ -37,7 +43,7 @@ let main _ =
 
         stateChangeStream 
         |> Observable.merge gameActionStream        
-        |> Observable.scan Domain.processGameEvent (StateAction.UpdateState Domain.initialGameState)
+        |> Observable.scan DomainTransitions.processGameEvent (StateAction.UpdateState <| DomainTypes.initialGameState initialAspectRatio)
 
     use renderFrameSubscription = 
         updatedStateStream

@@ -2,7 +2,7 @@
 
 open Physics
 open Geometry
-open Domain
+open DomainTypes
 open OpenTK
 open OpenTK.Input
 
@@ -23,6 +23,8 @@ type PairedKeyState<'a, 'b> = {
 let defaultPairedKeyState (defaultResult: 'a) = {PositiveKeyState = KeyReleased; NegativeKeyState = KeyReleased; Result = defaultResult}
 
 let transformKeyDown = function
+    | Key.B -> TestAsteroidBreak
+    | Key.V -> TestAsteroidShatter
     | Key.T -> ToggleTrail
     | Key.P -> ToggleParticles
     | Key.Space -> FireRocket
@@ -74,7 +76,7 @@ let createKeyboardTriggerStream (game : GameWindow) =
         |> Observable.scan processAccelActions (defaultPairedKeyState Neutral)
         |> Observable.map (fun x -> ChangeAcceleration x.Result)
     let headingStream = 
-        let processRotAccelActions = processActions (Physics.neutralRotationalVelocity,Physics.neutralRotationalVelocity,5.0<degree>,-5.0<degree>)
+        let processRotAccelActions = processActions (Physics.neutralRotationalVelocity,Physics.neutralRotationalVelocity,6.0<degree>,-6.0<degree>)
         downHeadingStream |> Observable.merge upHeadingStream
         |> Observable.scan processRotAccelActions (defaultPairedKeyState Physics.neutralRotationalVelocity)
         |> Observable.map (fun x -> ChangeHeading x.Result)

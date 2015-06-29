@@ -47,8 +47,12 @@ type ColoredTriangle2d = { P1:ColoredPoint2d; P2:ColoredPoint2d; P3:ColoredPoint
         }
 
 
+
 let addPoints (p1 : Point2d) (p2 : Point2d) = 
     {X = p1.X + p2.X; Y = p1.Y + p2.Y }
+
+let distanceBetweenPoints (p1 : Point2d) (p2 : Point2d) = 
+    sqrt((p2.X - p1.X) ** 2.0 + (p2.Y - p1.Y) ** 2.0)
 
 let addPointToColoredPoint (p : Point2d) (cp : ColoredPoint2d) = 
     {cp with Point = addPoints p cp.Point}

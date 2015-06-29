@@ -3,7 +3,7 @@ open Geometry
 
 let neutralRatio = 1.0
 let positionMaximumValue aspectRatio= 
-    let allowedExtra = 0.08
+    let allowedExtra = 0.1
     (2.0 * aspectRatio) + allowedExtra
 
 let updatePosition (aspectRatio : float) (position : Point2d) (velocity: Vector2d) = 
