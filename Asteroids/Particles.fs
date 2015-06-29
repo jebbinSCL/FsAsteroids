@@ -19,15 +19,12 @@ let updateParticle (aspectRatio : float) (lifespan: float<s>) particle =
     let p = updatePosition aspectRatio particle
     {p with Alpha = 1.0 - p.Age / lifespan} 
 
-let decayAndUpdateParticles (elapsed: float<s>) (aspectRatio : float) (lifespan : float<s>) particles = 
-    let aliveParticles = particles |> List.map (fun p -> {p with Age=p.Age + elapsed}) |> List.filter(fun p -> p.Age < lifeSpan)
-    aliveParticles 
-    |> List.map (updateParticle aspectRatio lifespan)
+let decayParticles (elapsed: float<s>) (lifespan : float<s>) particles = 
+    particles |> List.map (fun p -> {p with Age=p.Age + elapsed}) |> List.filter(fun p -> p.Age < lifespan) 
 
 let updateParticles (particles: Particle list) (elapsed: float<s>) (aspectRatio : float) (shipPos: Point2d) (shipThrust: Acceleration) (shipHeading: float<degree>)= 
 
     let jitterDegreeRnd = randomDegreeAroundZero randomInstance 
-    //let jitterLifeSpan() = randomInstance.NextDouble() * 0.6<s> - (0.3<s>)
     let thrustOnlyParticles' = 
         match shipThrust with 
         | Positive _-> 
@@ -40,4 +37,5 @@ let updateParticles (particles: Particle list) (elapsed: float<s>) (aspectRatio 
         | _ -> 
             particles
 
-    decayAndUpdateParticles elapsed aspectRatio lifeSpan thrustOnlyParticles'
+    decayParticles elapsed lifeSpan thrustOnlyParticles'
+    |> List.map (updateParticle aspectRatio lifeSpan)

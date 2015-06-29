@@ -30,9 +30,7 @@ let detectParticleCollisions (state: GameState) =
 
         |None -> newAsteroids.Add(asteroid)
 
-
-
-    {state with Rockets = List.ofSeq survivingRockets ; Asteroids = List.ofSeq newAsteroids; Shards =List.ofSeq  destroyedAsteroids}
+    {state with Rockets = List.ofSeq survivingRockets ; Asteroids = List.ofSeq newAsteroids; Shards = state.Shards @ List.ofSeq  destroyedAsteroids}
                 
 let detectShipCollisions (state: GameState) = 
     let result = Seq.tryFind (shipAsteroidTest state.Ship) state.Asteroids

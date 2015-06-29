@@ -13,4 +13,5 @@ let updateParticles (particles: Particle list) (elapsed: float<s>) (aspectRatio 
             {Position=shipPos; Velocity=particleVelocity; Age=0.0<s>; Alpha = 1.0} :: particles
         | _ -> 
             particles
-    decayAndUpdateParticles elapsed aspectRatio lifeSpan particles'
+    decayParticles elapsed lifeSpan particles'
+    |> List.map (updateParticle aspectRatio lifeSpan)
