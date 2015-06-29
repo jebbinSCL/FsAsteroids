@@ -1,6 +1,6 @@
 ﻿open OpenTK
 open OpenTK.Graphics
-open DomainTypes
+open Domain
 
 
 (*
@@ -32,8 +32,8 @@ let main _ =
 
     let updatedStateStream = 
         let stateChangeStream = 
-            let timeUpdateStream = game.UpdateFrame |> Observable.map (fun args -> DomainTypes.TimeUpdate <| LanguagePrimitives.FloatWithMeasure args.Time)
-            let aspectRatioStream = game.Resize |> Observable.map (fun _ -> DomainTypes.AspectRatioUpdate <| getAspectRatio game)
+            let timeUpdateStream = game.UpdateFrame |> Observable.map (fun args -> Domain.TimeUpdate <| LanguagePrimitives.FloatWithMeasure args.Time)
+            let aspectRatioStream = game.Resize |> Observable.map (fun _ -> Domain.AspectRatioUpdate <| getAspectRatio game)
             Keyboard.createKeyboardTriggerStream game |> Observable.merge timeUpdateStream |> Observable.merge aspectRatioStream |> Observable.map GameEvent.StateChange
         
         let gameActionStream = 
@@ -43,7 +43,7 @@ let main _ =
 
         stateChangeStream 
         |> Observable.merge gameActionStream        
-        |> Observable.scan DomainTransitions.processGameEvent (StateAction.UpdateState <| DomainTypes.initialGameState initialAspectRatio)
+        |> Observable.scan DomainTransitions.processGameEvent (StateAction.UpdateState <| Domain.initialGameState initialAspectRatio)
 
     use renderFrameSubscription = 
         updatedStateStream

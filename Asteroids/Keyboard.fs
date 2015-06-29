@@ -2,7 +2,7 @@
 
 open Physics
 open Geometry
-open DomainTypes
+open Domain
 open OpenTK
 open OpenTK.Input
 

@@ -1,6 +1,6 @@
 ﻿module Render
 
-open DomainTypes
+open Domain
 open Ship
 open Particles
 open Asteroids

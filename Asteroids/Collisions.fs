@@ -1,7 +1,7 @@
 ﻿module Collisions
 
 open Geometry
-open DomainTypes
+open Domain
 open Ship
 open Asteroids
 open Particles

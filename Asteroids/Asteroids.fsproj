@@ -62,7 +62,7 @@
     <Compile Include="TrailParticles.fs" />
     <Compile Include="Rockets.fs" />
     <Compile Include="Asteroids.fs" />
-    <Compile Include="DomainTypes.fs" />
+    <Compile Include="Domain.fs" />
     <Compile Include="Collisions.fs" />
     <Compile Include="DomainTransitions.fs" />
     <Compile Include="Keyboard.fs" />

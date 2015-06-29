@@ -1,4 +1,4 @@
-﻿module DomainTypes
+﻿module Domain
 
 open Geometry
 open Physics

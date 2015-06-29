@@ -1,6 +1,6 @@
 ﻿module DomainTransitions
 
-open DomainTypes
+open Domain
 
 let extractState (action : StateAction) = 
     match action with 
