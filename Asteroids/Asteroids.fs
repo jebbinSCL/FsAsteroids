@@ -37,7 +37,7 @@ let createAsteroid (aspectRatio : float) (boundingRadius : float) =
 
 let createInitialAsteroids (aspectRatio : float) = 
     let iniialBoundingRadius = 0.25
-    seq {0..9} |> Seq.map (fun x ->createAsteroid aspectRatio iniialBoundingRadius) |> Seq.toList
+    seq {0..20} |> Seq.map (fun x ->createAsteroid aspectRatio iniialBoundingRadius) |> Seq.toList
 
 let updateAsteroid aspectRatio (asteroid : Asteroid) = {asteroid with Position = Entities.updatePosition aspectRatio asteroid.Position asteroid.Velocity}
 
