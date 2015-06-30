@@ -76,7 +76,7 @@ let createKeyboardTriggerStream (game : GameWindow) =
         |> Observable.scan processAccelActions (defaultPairedKeyState Neutral)
         |> Observable.map (fun x -> ChangeAcceleration x.Result)
     let headingStream = 
-        let processRotAccelActions = processActions (Physics.neutralRotationalVelocity,Physics.neutralRotationalVelocity,4.0<degree>,-4.0<degree>)
+        let processRotAccelActions = processActions (Physics.neutralRotationalVelocity,Physics.neutralRotationalVelocity,5.0<degree>,-5.0<degree>)
         downHeadingStream |> Observable.merge upHeadingStream
         |> Observable.scan processRotAccelActions (defaultPairedKeyState Physics.neutralRotationalVelocity)
         |> Observable.map (fun x -> ChangeHeading x.Result)

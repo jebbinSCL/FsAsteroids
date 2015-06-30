@@ -2,24 +2,24 @@
 
 open Geometry
 open Domain
+open Ship
 open Asteroids
 open Particles
 open System.Collections.Generic
 
 let particleAsteroidTest (asteroid: Asteroid) (particle: Particle)  = 
     distanceBetweenPoints particle.Position asteroid.Position < asteroid.BoundingRadius
-    
-let asteroidTest (particles: Particle seq) (asteroid: Asteroid) = 
-    Seq.tryFind (particleAsteroidTest asteroid) particles
-    
 
+let shipAsteroidTest (ship: Ship) (asteroid: Asteroid)   = 
+    distanceBetweenPoints ship.Position asteroid.Position < asteroid.BoundingRadius
+    
 let detectParticleCollisions (state: GameState) = 
     let mutable survivingRockets = List<Particle>(state.Rockets)
     let mutable newAsteroids = List<Asteroid>()
     let mutable destroyedAsteroids = List<Asteroid>()
 
     for asteroid in state.Asteroids do 
-        let result = asteroidTest survivingRockets asteroid
+        let result = Seq.tryFind (particleAsteroidTest asteroid) survivingRockets
         match result with
         |Some particle -> 
             survivingRockets.Remove(particle) |> ignore
@@ -33,7 +33,14 @@ let detectParticleCollisions (state: GameState) =
 
     {state with Rockets = List.ofSeq survivingRockets ; Asteroids = List.ofSeq newAsteroids; Shards =state.Shards @ List.ofSeq  destroyedAsteroids}
                 
-//let detectShipCollisions (state: GameState) = 
+    //TODO
+let detectShipCollisions (state: GameState) = 
+    let result = Seq.tryFind (shipAsteroidTest state.Ship) state.Asteroids
+    match result with
+    | Some asteroid -> 
+        async {printfn "Ship Collision!\n"} |> Async.Start
+        state
+    | None -> state
     
     
 
@@ -42,5 +49,4 @@ let detectCollisions (state: GameState) =
         state
     else 
         let state' = if not state.Rockets.IsEmpty then detectParticleCollisions state else state
-        state'
-        //detectShipCollisions state'
+        detectShipCollisions state'

@@ -4,7 +4,7 @@ open Geometry
 open Physics
 open Particles
 
-let lifeSpan = 0.7<s>
+let lifeSpan = 0.8<s>
 
 let createRocket (shipPos: Point2d) (shipHeading: float<degree>) = 
     let velocity = {Dx = 0.0; Dy = 0.075} |> rotateVector shipHeading
