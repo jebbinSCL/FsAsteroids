@@ -6,6 +6,11 @@ open System
 [<Measure>] type degree
 //TODO Cleanup Geometry file
 //TODO redo physics and Geometry and seperate out vector into magnitude and direction / rotation
+//TODO use Units of measure everywhere
+//TODO seperate out Triangle, point etc into own modules under root geometry module / namespace
+//Rethink module orgainsation (See Nics?)
+
+
 let radiansPerDegree  = (Math.PI * 1.0<radian>) / 180.0<degree>
 
 let convertDegreeToRadian (angle : float<degree>) : float<radian> = radiansPerDegree * angle

@@ -35,6 +35,7 @@ let createAsteroid (aspectRatio : float) (boundingRadius : float) =
     
     {Position= {X =randLoc aspectRatio; Y = randLoc neutralRatio }; Velocity = velocity; BodyWrtOrigin = createAsteroidBody boundingRadius; BoundingRadius = boundingRadius; BreakCount = 0; Age = 0.0<s>; Alpha= 1.0}
 
+//TODO generate initial asteroids a certain distance from the ship for an easy start
 let createInitialAsteroids (aspectRatio : float) = 
     let iniialBoundingRadius = 0.25
     seq {0..40} |> Seq.map (fun x ->createAsteroid aspectRatio iniialBoundingRadius) |> Seq.toList

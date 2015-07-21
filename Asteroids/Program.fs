@@ -2,10 +2,9 @@
 open OpenTK.Graphics
 open Domain
 
-
-(*
-    Tasks: - Test as much as possible!
-*)
+//TODO Tests
+//TODO decide reasonable initial number of asteroids
+//TODO Decide levels, powerups, health etc
 
 [<EntryPoint>]
 let main _ = 

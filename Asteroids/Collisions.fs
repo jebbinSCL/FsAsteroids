@@ -33,7 +33,7 @@ let detectParticleCollisions (state: GameState) =
 
     {state with Rockets = List.ofSeq survivingRockets ; Asteroids = List.ofSeq newAsteroids; Shards =state.Shards @ List.ofSeq  destroyedAsteroids}
                 
-    //TODO
+    //TODO Complete ship collisions
 let detectShipCollisions (state: GameState) = 
     let result = Seq.tryFind (shipAsteroidTest state.Ship) state.Asteroids
     match result with
