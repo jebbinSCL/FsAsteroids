@@ -14,8 +14,6 @@ let main _ =
 
     let initialAspectRatio = getAspectRatio game
 
-    
-
     let load _ = GameConfig.onLoadSetup game
 
     let resize _ = GameConfig.onResizeSetup game

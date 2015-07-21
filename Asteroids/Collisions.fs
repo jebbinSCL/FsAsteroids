@@ -17,7 +17,7 @@ let detectParticleCollisions (state: GameState) =
     let mutable survivingRockets = List<Particle>(state.Rockets)
     let mutable newAsteroids = List<Asteroid>()
     let mutable destroyedAsteroids = List<Asteroid>()
-
+    //TODO remove for loop
     for asteroid in state.Asteroids do 
         let result = Seq.tryFind (particleAsteroidTest asteroid) survivingRockets
         match result with
