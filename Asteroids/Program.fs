@@ -5,6 +5,8 @@ open Domain
 //TODO Tests
 //TODO decide reasonable initial number of asteroids
 //TODO Decide levels, powerups, health etc
+//TODO Cleanup type definitions
+//TODO move todos to Github issues
 
 [<EntryPoint>]
 let main _ = 
