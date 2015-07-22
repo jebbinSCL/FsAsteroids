@@ -5,7 +5,6 @@ open Domain
 //TODO Tests
 //TODO decide reasonable initial number of asteroids
 //TODO Decide levels, powerups, health etc
-//TODO remove uncessary type definitions
 
 [<EntryPoint>]
 let main _ = 
